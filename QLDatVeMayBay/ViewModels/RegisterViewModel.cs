@@ -35,12 +35,14 @@ namespace QLDatVeMayBay.ViewModels
         public string? SoDienThoai { get; set; }
 
         [StringLength(10)]
+        [Required(ErrorMessage = "Giới tính không được để trống")]
         public string? GioiTinh { get; set; } // "Nam", "Nữ", "Khác"
 
         [StringLength(20)]
         [RegularExpression(@"^\d{9,12}$", ErrorMessage = "CCCD phải là số và từ 9 đến 12 chữ số")]
+        [Required(ErrorMessage = "CCCD không được để trống")]
         public string? CCCD { get; set; }
-
+        [Required(ErrorMessage = "Quốc tịch không được để trống")]
         [StringLength(50, ErrorMessage = "Quốc tịch tối đa 50 ký tự")]
         public string? QuocTich { get; set; }
     }

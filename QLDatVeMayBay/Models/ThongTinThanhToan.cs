@@ -26,6 +26,6 @@ namespace QLDatVeMayBay.Models
         [Required(ErrorMessage = "Vui lòng chọn thẻ hoặc ví.")]
         public string? SelectedTheId { get; set; }
 
-
+        public string Email { get; set; } = string.Empty;
     }
 }

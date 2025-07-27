@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "Gửi lại mã OTP";
+}
+
+<h2>Gửi lại mã OTP</h2>
+
+<form asp-action="GuiLaiOTP" method="post">
+    <div class="mb-3">
+        <label>Email đã đăng ký:</label>
+        <input name="email" type="email" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Gửi mã mới</button>
+    <a asp-action="NhapOTP" class="btn btn-outline-secondary">← Quay lại nhập mã</a>
+
+</form>

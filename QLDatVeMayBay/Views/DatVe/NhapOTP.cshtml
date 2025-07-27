@@ -1,5 +1,4 @@
-﻿
-@model QLDatVeMayBay.Models.ThongTinThanhToan
+﻿@model QLDatVeMayBay.Models.ThongTinThanhToan
 
 <h2>Xác nhận OTP</h2>
 
@@ -17,6 +16,10 @@
     </div>
 
     <button type="submit" class="btn btn-success">Xác nhận</button>
+    <!-- Nút dẫn sang trang gửi lại OTP -->
+   
+    <a asp-action="GuiLaiOTP" asp-controller="DatVe" class="btn btn-warning">Gửi lại mã OTP</a>
+
     <!-- Nút quay lại -->
     <a class="btn btn-outline-secondary btn-back" href="javascript:history.back()">← Quay lại</a>
 
@@ -24,5 +27,10 @@
     @if (ViewBag.Error != null)
     {
         <div class="alert alert-danger mt-2">@ViewBag.Error</div>
+    }
+
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-info mt-2">@TempData["ThongBao"]</div>
     }
 </form>

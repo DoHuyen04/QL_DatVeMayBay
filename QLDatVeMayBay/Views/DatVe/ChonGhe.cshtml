@@ -6,8 +6,6 @@
     var gheDaDat = Model.GheDaDat;
 }
 
-<a class="btn btn-outline-secondary btn-back" href="javascript:history.back()">← Quay lại</a>
-
 <h2 class="text-primary">Chọn ghế</h2>
 
 @if (TempData["LoiChonGhe"] != null)
@@ -18,6 +16,7 @@
 }
 
 <form asp-action="XacNhanVe" method="post" onsubmit="return kiemTraChonGhe();">
+
     <input type="hidden" name="idChuyenBay" value="@Model.IDChuyenBay" />
 
     <div class="d-flex flex-wrap gap-2 mt-3">
@@ -35,6 +34,7 @@
 
     <div class="mt-4">
         <button type="submit" class="btn btn-primary">Đặt vé</button>
+        <a class="btn btn-outline-secondary btn-back" href="javascript:history.back()">← Quay lại</a>
     </div>
 </form>
 @section Scripts {

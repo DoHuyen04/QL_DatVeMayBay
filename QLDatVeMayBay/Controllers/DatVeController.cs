@@ -126,7 +126,7 @@ namespace QLDatVeMayBay.Controllers
                     TrangThaiVe = "Chưa thanh toán"
                 },
                 SoTien = giaVe,
-                 DanhSachThe = danhSachThe
+                DanhSachThe = danhSachThe
             };
 
             return View(model);
@@ -179,7 +179,7 @@ namespace QLDatVeMayBay.Controllers
         [HttpPost]
         public async Task<IActionResult> KiemTraOTP(ThongTinThanhToan model)
         {
-            
+
 
             // Lấy mã OTP và thời gian hết hạn từ session
             var otp = HttpContext.Session.GetString("OTP");
@@ -208,7 +208,7 @@ namespace QLDatVeMayBay.Controllers
             // Lưu vé vào DB
             _context.VeMayBay.Add(ve);
             await _context.SaveChangesAsync();
-           
+
 
             // Lưu thông tin thanh toán
             var thanhToan = new ThanhToan
@@ -293,6 +293,57 @@ namespace QLDatVeMayBay.Controllers
             return View("ThanhToanThanhCong", fullModel);
         }
 
+        [HttpGet]
+        public IActionResult NhapOTP()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult GuiLaiOTP()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GuiLaiOTP(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                TempData["ThongBao"] = "Vui lòng nhập email hợp lệ.";
+                return RedirectToAction("NhapOTP");
+            }
+
+            // Tìm người dùng
+            var nguoiDung = await _context.NguoiDung.FirstOrDefaultAsync(n => n.Email == email);
+            if (nguoiDung == null)
+            {
+                TempData["ThongBao"] = "Không tìm thấy người dùng với email này.";
+                return RedirectToAction("NhapOTP");
+            }
+
+            // Tạo OTP mới
+            var otp = new Random().Next(100000, 999999).ToString();
+            HttpContext.Session.SetString("OTP", otp);
+            HttpContext.Session.SetString("OTP_Expires", DateTime.UtcNow.AddMinutes(2).ToString("O"));
+
+            // Gửi email
+            string emailHtml = $"""
+        <h2>Mã OTP mới</h2>
+        <p>Mã xác nhận thanh toán của bạn là:</p>
+        <div style='font-size:28px;font-weight:bold;color:#198754'>{otp}</div>
+        <p>Mã có hiệu lực trong 2 phút.</p>
+        """;
+
+            await _emailService.SendEmailAsync(
+                nguoiDung.Email,
+                "Mã OTP thanh toán mới",
+                emailHtml
+            );
+
+            TempData["ThongBao"] = "Mã OTP mới đã được gửi vào email.";
+            return RedirectToAction("NhapOTP");
+        }
 
     }
 }
