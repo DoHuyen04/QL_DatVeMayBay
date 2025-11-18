@@ -49,6 +49,7 @@ namespace QLDatVeMayBay.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<SanBay>()
+                .ToTable("SanBay")
                 .HasKey(s => s.IDSanBay);
 
             modelBuilder.Entity<ChuyenBay>()

@@ -6,7 +6,6 @@ namespace QLDatVeMayBay.Models
     public class LoaiMayBay
     {
         [Key]
-        [StringLength(50)]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LoaiMayBayId { get; set; }
 
