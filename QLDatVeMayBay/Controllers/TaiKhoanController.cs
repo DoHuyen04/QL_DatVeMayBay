@@ -61,7 +61,8 @@ namespace QLDatVeMayBay.Controllers
 
             if (!string.IsNullOrEmpty(model.CCCD) && await _context.NguoiDung.AnyAsync(n => n.CCCD == model.CCCD))
                 ModelState.AddModelError("CCCD", "CCCD đã được sử dụng.");
-
+            if (!ModelState.IsValid)
+                return View(model);
 
             // Mã hóa mật khẩu
             var matKhauHash = HashPassword(model.MatKhau);
@@ -175,7 +176,7 @@ namespace QLDatVeMayBay.Controllers
             TempData["XacNhanThanhCong"] = true;
             return RedirectToAction("DangNhap");
         }
-                                                                                                                                             
+
         // GET: DangNhap
         [HttpGet]
         public IActionResult DangNhap()
@@ -258,7 +259,7 @@ namespace QLDatVeMayBay.Controllers
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
-          
+
             HttpContext.Session.SetInt32("IDNguoiDung", taiKhoan.NguoiDung.IDNguoiDung);
             HttpContext.Session.SetString("TenDangNhap", taiKhoan.TenDangNhap);
             HttpContext.Session.SetString("VaiTro", taiKhoan.VaiTro);
@@ -278,11 +279,11 @@ namespace QLDatVeMayBay.Controllers
         {
             HttpContext.Session.Clear();
 
-           
-            return RedirectToAction("Index","Home");
+
+            return RedirectToAction("Index", "Home");
         }
 
-        
+
 
         [HttpGet]
         public IActionResult QuenMatKhau()
@@ -313,7 +314,7 @@ namespace QLDatVeMayBay.Controllers
 
             _context.MaXacNhan.Add(maXacNhan); // lưu lại mã 
             await _context.SaveChangesAsync();
-                                                             
+
             string noiDungEmail = $@"
 <div style='font-family:Segoe UI, sans-serif; background-color:#ffffff; padding:30px; border:1px solid #e0e0e0; border-radius:10px; max-width:600px; margin:auto;'>
     <div style='text-align:center; margin-bottom:20px;'>
@@ -356,7 +357,7 @@ namespace QLDatVeMayBay.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken] 
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> XacNhanQuenMatKhau(XacNhanQuenMatKhauViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
@@ -444,7 +445,7 @@ namespace QLDatVeMayBay.Controllers
             TempData["Email"] = Email;
             TempData["ThongBao"] = "Đã gửi lại mã xác nhận.";
             TempData.Keep("Email");
-            return RedirectToAction("XacNhanQuenMatKhau" , new {email = Email});
+            return RedirectToAction("XacNhanQuenMatKhau", new { email = Email });
         }
         private string HashPassword(string password)
         {
