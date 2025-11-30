@@ -3,20 +3,52 @@
     ViewData["Title"] = "Xác nhận mã OTP";
 }
 
-<h2>Xác nhận mã OTP</h2>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4" style="width: 420px; border-radius: 16px;">
 
-<form asp-action="XacNhanQuenMatKhau" method="post">
-    <input type="hidden" asp-for="Email" />
+        <h3 class="text-center mb-3" style="font-weight:600;">
+            🔑 Xác nhận mã OTP
+        </h3>
 
-    <div class="form-group">
-        <label>Mã xác nhận đã gửi về email</label>
-        <input asp-for="MaXacNhan" class="form-control" />
-        <span asp-validation-for="MaXacNhan" class="text-danger"></span>
+        <p class="text-muted text-center mb-4">
+            Mã OTP đã được gửi tới email của bạn.
+            Vui lòng nhập mã để tiếp tục.
+        </p>
+
+        <form asp-action="XacNhanQuenMatKhau" method="post">
+
+            @* giữ lại email *@
+            <input type="hidden" asp-for="Email" />
+
+            <div class="form-group mb-3">
+                <label class="fw-bold">Mã xác nhận (OTP) quên mật khẩu </label>
+
+                <input asp-for="MaXacNhan"
+                       class="form-control form-control-lg text-center"
+                       style="letter-spacing: 4px; font-size: 22px; font-weight: 600;"
+                       maxlength="6" placeholder="● ● ● ● ● ●" />
+
+                <span asp-validation-for="MaXacNhan" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 btn-lg" style="border-radius: 8px;">
+                Xác nhận
+            </button>
+
+            <button formaction="/TaiKhoan/GuiLaiMa"
+                    formmethod="post"
+                    class="btn btn-outline-primary w-100 mt-3"
+                    style="border-radius: 8px;">
+                Gửi lại mã OTP
+            </button>
+
+            <button type="button"
+                    onclick="history.back()"
+                    class="btn btn-outline-secondary w-100 mt-3"
+                    style="border-radius: 8px;">
+                ← Quay lại
+            </button>
+
+        </form>
     </div>
-    <button type="submit" class="btn btn-success">Xác nhận</button>
-    <!-- Nút gửi lại mã -->
-    <button formaction="/TaiKhoan/GuiLaiMa" formmethod="post" class="btn btn-secondary mt-2 ms-2">Gửi lại mã</button>
-
-    <!-- Nút quay lại -->
-    <button type="button" onclick="history.back()" class="btn btn-outline-secondary mt-2 ms-2">← Quay lại</button>
-</form>
+</div>

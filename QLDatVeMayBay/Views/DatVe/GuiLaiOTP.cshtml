@@ -2,15 +2,81 @@
     ViewData["Title"] = "Gửi lại mã OTP";
 }
 
-<h2>Gửi lại mã OTP</h2>
+<style>
+    body {
+        background: #f0f2f5;
+    }
 
-<form asp-action="GuiLaiOTP" method="post">
-    <div class="mb-3">
-        <label>Email đã đăng ký:</label>
-        <input name="email" type="email" class="form-control" required />
-    </div>
+    .otp-resend-container {
+        max-width: 400px;
+        margin: 80px auto;
+        background: #fff;
+        padding: 35px 30px;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        text-align: center;
+        font-family: 'Segoe UI', sans-serif;
+    }
 
-    <button type="submit" class="btn btn-primary">Gửi mã mới</button>
-    <a asp-action="NhapOTP" class="btn btn-outline-secondary">← Quay lại nhập mã</a>
+        .otp-resend-container h2 {
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: #333;
+        }
 
-</form>
+        .otp-resend-container .form-control {
+            height: 45px;
+            font-size: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #ced4da;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+            .otp-resend-container .form-control:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 5px #007bff;
+                outline: none;
+            }
+
+    .btn-group-resend {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+        .btn-group-resend .btn {
+            flex: 1;
+            font-size: 16px;
+            padding: 10px 0;
+            border-radius: 8px;
+        }
+</style>
+
+<div class="otp-resend-container">
+    <h2>🔄 Gửi lại mã OTP</h2>
+
+    <form asp-action="GuiLaiOTP" method="post">
+        <div class="mb-3">
+            <label for="email" class="form-label">Email đã đăng ký:</label>
+            <input id="email" name="email" type="email" class="form-control" placeholder="Nhập email của bạn" required />
+        </div>
+
+        <div class="btn-group-resend">
+            <button type="submit" class="btn btn-primary">Gửi mã mới</button>
+            <a asp-action="NhapOTP" class="btn btn-outline-secondary">← Quay lại</a>
+
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger mt-3">@ViewBag.Error</div>
+        }
+
+        @if (TempData["ThongBao"] != null)
+        {
+            <div class="alert alert-info mt-3">@TempData["ThongBao"]</div>
+        }
+    </form>
+</div>

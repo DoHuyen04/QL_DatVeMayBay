@@ -4,12 +4,17 @@
 }
 
 <style>
+    body {
+        background: #f0f2f5;
+    }
+
     .ticket {
         max-width: 700px;
-        margin: auto;
-        border: 2px dashed #ccc;
+        margin: 40px auto;
         padding: 30px;
-        background: #f8f9fa;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
         font-family: 'Segoe UI', sans-serif;
         position: relative;
     }
@@ -18,6 +23,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 20px;
     }
 
     .qr-code {
@@ -25,56 +31,88 @@
         height: auto;
     }
 
-    .ticket-body {
-        margin-top: 20px;
+    .ticket-body p {
+        margin-bottom: 10px;
+        font-size: 16px;
     }
 
     .ticket-label {
-        font-weight: bold;
+        font-weight: 600;
         color: #333;
     }
 
-    .btn-back {
-        position: absolute;
-        top: 15px;
-        left: 15px;
+    .btn-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 25px;
     }
 
-    .ticket-footer {
-        text-align: center;
-        margin-top: 30px;
+    .btn-back {
+        background: #6c757d;
+        color: #fff;
     }
+
+        .btn-back:hover {
+            background: #5a6268;
+            color: #fff;
+        }
 </style>
 
+@functions {
+    // Hàm chuyển ID ghế → Tên ghế A1, B1, ...
+    string GetSeatName(int seatNumber)
+    {
+        int seatsPerRow = 6; // A → F
+        string letters = "ABCDEF";
+
+        int row = (seatNumber - 1) / seatsPerRow;
+        int col = (seatNumber - 1) % seatsPerRow;
+
+        char seatLetter = letters[col];
+        int seatIndex = row + 1;
+
+        return $"{seatLetter}{seatIndex}";
+    }
+}
 
 <div class="ticket">
-    
     <div class="ticket-header">
         <h2>VÉ MÁY BAY - @Model.TenHangHK</h2>
         <img src="data:image/png;base64,@Model.QRBase64" class="qr-code" alt="QR Code" />
     </div>
+
     <hr />
+
     <div class="ticket-body">
         <p><span class="ticket-label">Họ tên:</span> @Model.HoTen</p>
         <p><span class="ticket-label">ID Người dùng:</span> @Model.IDNguoiDung</p>
         <p><span class="ticket-label">Giới tính:</span> @Model.GioiTinh</p>
-       
-        <p><span class="ticket-label">Mã Chuyến bay:</span> @Model.IDChuyenBay</p>
+
+        <p><span class="ticket-label">Mã chuyến bay:</span> @Model.IDChuyenBay</p>
         <p><span class="ticket-label">Điểm đi:</span> @Model.SanBayDi (@Model.TenSanBayDi)</p>
         <p><span class="ticket-label">Điểm đến:</span> @Model.SanBayDen (@Model.TenSanBayDen)</p>
         <p><span class="ticket-label">Giờ cất cánh:</span> @Model.GioCatCanh.ToString("dd/MM/yyyy HH:mm")</p>
         <p><span class="ticket-label">Giờ hạ cánh:</span> @Model.GioHaCanh.ToString("dd/MM/yyyy HH:mm")</p>
-        <p><span class="ticket-label">Số ghế:</span> G @Model.IDGhe</p>
+
+        <!-- Hiển thị tên ghế chuẩn theo A1, B1,... -->
+        <p><span class="ticket-label">Số ghế:</span> @GetSeatName(int.Parse(Model.IDGhe))</p>
+
+        <p><span class="ticket-label">Hạng ghế:</span> @Model.HangGhe</p>
         <p><span class="ticket-label">Giá vé:</span> @Model.GiaVe.ToString("N0") đ</p>
+
     </div>
-    <form asp-controller="DatVe" asp-action="ThanhToan" method="get">
-        <input type="hidden" name="idChuyenBay" value="@Model.IDChuyenBay" />
-        <input type="hidden" name="idGhe" value="@Model.IDGhe" />
-       
-        <button type="submit" class="btn btn-success mt-3">Xác nhận thanh toán</button>
-       
-    </form>
-    <!-- Nút quay lại -->
-    <a class="btn btn-outline-secondary btn-back" href="javascript:history.back()">← Quay lại</a>
+
+    <div class="btn-actions" style="justify-content: center;">
+        <a class="btn btn-secondary btn-lg" href="javascript:history.back()">Quay lại</a>
+
+        <form asp-controller="DatVe" asp-action="ThanhToan" method="get" style="display:inline;">
+            <input type="hidden" name="idChuyenBay" value="@Model.IDChuyenBay" />
+            <input type="hidden" name="idGhe" value="@Model.IDGhe" />
+            <input type="hidden" name="giaVe" value="@Model.GiaVe" />
+            <input type="hidden" name="hangGhe" value="@Model.HangGhe" />
+            <button type="submit" class="btn btn-success btn-lg">Xác nhận thanh toán</button>
+        </form>
+    </div>
 
 </div>

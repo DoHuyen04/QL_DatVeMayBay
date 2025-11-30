@@ -1,87 +1,530 @@
-﻿@model QLDatVeMayBay.Models.TimKiemChuyenBay
-@using Microsoft.AspNetCore.Mvc.Rendering
-
-@{
-    ViewData["Title"] = "Tìm kiếm chuyến bay";
+﻿@{
+    ViewData["Title"] = "Trang Chủ";
 }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+    :root {
+        --pink-soft: #ffe5f1;
+        --pink-strong: #ff9ec4;
+        --blue-soft: #e6f3ff;
+        --blue-strong: #4b8dff;
+        --text-main: #1f2933;
+        --card-bg: #ffffff;
+        --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.08);
+        --radius-lg: 20px;
+    }
 
-<div class="container mt-5">
-    <div class="bg-light p-5 rounded shadow-sm">
-        <h3 class="fw-bold text-primary mb-4">Tìm kiếm chuyến bay</h3>
+    /* ================== PHẦN TRANG CHỦ MỚI ================== */
 
-        <form asp-controller = "ChuyenBay" asp-action="KetQuaTimKiem" method="post">
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label>Loại vé</label><br />
-                    <input type="radio" name="LoaiVe" checked /> Một chiều
-                    <input type="radio" name="LoaiVe" class="ms-3" /> Khứ hồi
-                </div>
-                <div class="col-md-3">
-                    <label>Hạng ghế</label>
-                    <select class="form-select">
-                        <option>Phổ thông</option>
-                        <option>Thương gia</option>
-                        <option>Hạng nhất</option>
-                    </select>
-                </div>
-               
-            </div>
+    .home-hero-wrapper {
+        background: linear-gradient(180deg, #fff5fb 0%, #f4f7ff 40%, #ffffff 100%);
+    }
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label>Từ (Sân bay đi)</label>
-                    @Html.DropDownListFor(m => m.SanBayDi, (SelectList)ViewBag.SanBayDi, "Chọn sân bay đi", new { @class = "form-select" })
-                </div>
-                <div class="col-md-4">
-                    <label>Đến (Sân bay đến)</label>
-                    @Html.DropDownListFor(m => m.SanBayDen, (SelectList)ViewBag.SanBayDen, "Chọn sân bay đến", new { @class = "form-select" })
-                </div>
-                <div class="col-md-4">
-                    <label>Ngày đi</label>
-                    @Html.TextBoxFor(m => m.NgayDi, "{0:yyyy-MM-dd}", new { @type = "date", @class = "form-control" })
-                </div>
-                
-            </div>
+    .home-section-title {
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--text-main);
+    }
 
-            <div class="text-end">
-                <button type="submit" class="btn btn-primary">Tìm kiếm chuyến bay</button>
-            </div>
-        </form>
+    .home-section-sub {
+        font-size: 14px;
+        color: #6b7280;
+    }
 
-        @if (ViewBag.KetQua != null)
-        {
-            <div class="mt-5">
-                <h5 class="text-success">Kết quả chuyến bay:</h5>
-                <table class="table table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Mã chuyến</th>
-                            <th>Hãng</th>
-                            <th>Đi</th>
-                            <th>Đến</th>
-                            <th>Giờ cất cánh</th>
-                            <th>Giờ hạ cánh</th>
-                            <th>Giá vé</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var cb in ViewBag.KetQua)
-                        {
-                            <tr>
-                                <td>@cb.IDChuyenBay</td>
-                                <td>@cb.MayBay?.Mota</td>
-                                <td>@cb.SanBayDiInfo?.TenSanBay</td>
-                                <td>@cb.SanBayDenInfo?.TenSanBay</td>
-                                <td>@cb.GioCatCanh.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td>@cb.GioHaCanh.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td>@cb.GiaVe.ToString("N0") đ</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+    /* --- Section 1: Lợi ích --- */
+    .benefit-section {
+        margin-top: 20px;
+        margin-bottom: 40px;
+    }
+
+    .benefit-card {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        padding: 18px 16px;
+        box-shadow: var(--shadow-soft);
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        height: 100%;
+    }
+
+    .benefit-icon-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 20% 20%, #ffffff, #ffd6ea);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .benefit-icon-circle i {
+            font-size: 24px;
+            color: #ff7aa8;
         }
+
+    .benefit-title {
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: var(--text-main);
+    }
+
+    .benefit-text {
+        font-size: 13px;
+        color: #4b5563;
+        margin: 0;
+    }
+
+    /* --- Section 2: Banner QR --- */
+    .qr-banner {
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 20px 45px rgba(30, 64, 175, 0.25);
+        background: radial-gradient(circle at top left, #ffcfe8 0, #5b8fff 45%, #132d5e 100%);
+        color: #ffffff;
+        margin-bottom: 40px;
+    }
+
+    .qr-banner-inner {
+        padding: 40px 46px;
+    }
+
+    .banner-label {
+        display: inline-block;
+        padding: 5px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .banner-title {
+        font-size: 30px;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 14px;
+    }
+
+    .banner-sub {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 16px;
+    }
+
+    .banner-list {
+        list-style: none;
+        padding-left: 0;
+        margin: 0;
+        font-size: 14px;
+    }
+
+        .banner-list li {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 9px;
+        }
+
+    .banner-bullet {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-top: 6px;
+        background: #ffd6ea;
+    }
+
+    .qr-side {
+        text-align: center;
+    }
+
+    .phone-mockup {
+        max-width: 260px;
+        border-radius: 26px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+        margin-bottom: 16px;
+    }
+
+    .qr-img {
+        width: 140px;
+        height: 140px;
+        border-radius: 22px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.95);
+    }
+
+    .store-btn {
+        width: 140px;
+        margin: 10px 6px 0;
+    }
+
+    /* --- Section 3: Ưu đãi --- */
+    .promo-section {
+        margin-bottom: 40px;
+    }
+
+    .promo-card {
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+    }
+
+        .promo-card img {
+            width: 100%;
+            display: block;
+        }
+
+    /* --- Section 4: Lý do chọn BookAir --- */
+    .why-section {
+        margin-bottom: 40px;
+    }
+
+    .why-card {
+        border-radius: var(--radius-lg);
+        padding: 20px 22px;
+        background: #f5f7ff;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .why-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 12px;
+    }
+
+    .why-text {
+        font-size: 14px;
+        color: #4b5563;
+        margin-bottom: 8px;
+    }
+
+    .why-link {
+        font-size: 14px;
+        font-weight: 600;
+        color: #2563eb;
+        text-decoration: none;
+    }
+
+        .why-link:hover {
+            text-decoration: underline;
+        }
+
+    /* --- Hiệu ứng fade-in --- */
+    .reveal {
+        opacity: 0;
+        transform: translateY(35px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    /* ================== PHẦN CŨ ================== */
+    .partner-box {
+        width: 100px;
+        height: 70px;
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .partner-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+</style>
+
+<!-- ================== TRANG CHỦ MỚI ================== -->
+<div class="home-hero-wrapper pt-4 pb-5">
+    <div class="container">
+
+        <!-- 1. Lợi ích -->
+        <section class="benefit-section reveal">
+            <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
+                <div>
+                    <h2 class="home-section-title">BookAir – Người bạn đồng hành đáng tin cậy của bạn</h2>
+                    <p class="home-section-sub mb-0">
+                        Đặt vé máy bay, theo dõi chuyến bay và săn ưu đãi chỉ trong một nền tảng.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-3 col-12">
+                    <div class="benefit-card">
+                        <div class="benefit-icon-circle">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                        <div>
+                            <div class="benefit-title">Tiết Kiệm & Nhận Thưởng</div>
+                            <p class="benefit-text">
+                                Đăng ký tài khoản BookAir để nhận ưu đãi và tích điểm đổi vé.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-12">
+                    <div class="benefit-card">
+                        <div class="benefit-icon-circle">
+                            <i class="bi bi-globe2"></i>
+                        </div>
+                        <div>
+                            <div class="benefit-title">Hỗ Trợ Toàn Cầu</div>
+                            <p class="benefit-text">
+                                Kết nối hàng trăm hãng bay trên toàn thế giới.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-12">
+                    <div class="benefit-card">
+                        <div class="benefit-icon-circle">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </div>
+                        <div>
+                            <div class="benefit-title">Phản Hồi Nhanh Chóng</div>
+                            <p class="benefit-text">
+                                Hỗ trợ khách hàng 24/7, phản hồi ngay lập tức.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-12">
+                    <div class="benefit-card">
+                        <div class="benefit-icon-circle">
+                            <i class="bi bi-phone"></i>
+                        </div>
+                        <div>
+                            <div class="benefit-title">Ưu Đãi Trên Ứng Dụng</div>
+                            <p class="benefit-text">
+                                Tải ứng dụng BookAir để nhận thêm ưu đãi độc quyền.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Banner QR -->
+        <section class="qr-banner reveal">
+            <div class="qr-banner-inner">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-7 col-12 mb-4 mb-md-0">
+                        <span class="banner-label">Ứng dụng BookAir</span>
+                        <h2 class="banner-title">
+                            Cập nhật trạng thái<br />chuyến bay miễn phí<br />mọi lúc mọi nơi
+                        </h2>
+                        <p class="banner-sub">
+                            Theo dõi chuyến bay, nhận thông báo thay đổi và check-in thuận tiện.
+                        </p>
+                        <ul class="banner-list">
+                            <li>
+                                <span class="banner-bullet"></span>
+                                <span>Theo dõi hàng chục nghìn chuyến bay theo thời gian thực.</span>
+                            </li>
+                            <li>
+                                <span class="banner-bullet"></span>
+                                <span>Xem thông tin quầy thủ tục & cổng khởi hành.</span>
+                            </li>
+                            <li>
+                                <span class="banner-bullet"></span>
+                                <span>Nhận thông báo chậm chuyến & đổi cổng.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-6 col-md-5 col-12 qr-side">
+                        <img src="https://chatgpt.com/backend-api/estuary/content?id=file_0000000051cc71faaf6994655db5e4a1&ts=490057&p=fs&cid=1&sig=5b94a7f9213db29658dca93777f2648568ebbb6a5a04d900539019a65bdd5e3c&v=0">
+                        <div>
+                            <img src="~/NewFolder/appstore.png" class="store-btn" />
+                            <img src="~/NewFolder/googleplay.png" class="store-btn" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Ưu đãi -->
+        <section class="promo-section reveal">
+            <h2 class="home-section-title mb-2">Khám Phá Các Ưu Đãi</h2>
+            <p class="home-section-sub mb-3">
+                Săn vé giá tốt mỗi ngày cùng BookAir.
+            </p>
+
+            <div id="promoCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+
+                    <div class="carousel-item active">
+                        <div class="promo-card">
+                            <img src="~/NewFolder/uudai1.png" alt="Ưu đãi 1" />
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="promo-card">
+                            <img src="~/NewFolder/uudai2.png" alt="Ưu đãi 2" />
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="promo-card">
+                            <img src="~/NewFolder/uudai3.png" alt="Ưu đãi 3" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 4. Lý do nên đặt vé -->
+        <section class="why-section reveal">
+            <div class="why-card">
+                <h2 class="why-title">Tại Sao Nên Đặt Vé Máy Bay Với BookAir?</h2>
+                <p class="why-text">
+                    BookAir giúp bạn dễ dàng so sánh giá, tìm chuyến bay phù hợp nhất với nhu cầu.
+                </p>
+
+                <p class="why-text">
+                    Giao diện thân thiện, bộ lọc thông minh giúp bạn lựa chọn nhanh chóng.
+                </p>
+
+                <p class="why-text">
+                    Hệ thống theo dõi chuyến bay thời gian thực giúp bạn chủ động hơn trong mọi hành trình.
+                </p>
+
+                <a href="#" class="why-link">Xem thêm &raquo;</a>
+            </div>
+        </section>
+
     </div>
 </div>
+
+<!-- ================== PHẦN CŨ ================== -->
+<div class="bg-white text-dark pt-2 pb-4">
+    <div class="container mt-n2">
+
+        <!-- Logo -->
+        <div class="text-center mb-4">
+            <img src="~/NewFolder/logo-boolari.png" style="height: 200px;">
+        </div>
+
+        <!-- Nội dung chính -->
+        <div class="row text-start mb-5" style="font-size: 1.05rem;">
+            <div class="col-md-3 mb-3">
+                <h6 class="fw-bold">Về QLĐặtVé</h6>
+                <ul class="list-unstyled">
+                    <li><a class="text-dark" asp-controller="Home" asp-action="HuongDanDatCho">Cách đặt chỗ</a></li>
+                    <li><a class="text-dark" asp-controller="Home" asp-action="LienHe">Liên hệ</a></li>
+                    <li><a class="text-dark" asp-controller="ThongTin" asp-action="VeChungToi">Về chúng tôi</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <h6 class="fw-bold">Sản phẩm</h6>
+                <ul class="list-unstyled">
+                    <li><a class="text-dark" asp-controller="SanPham" asp-action="VeMayBay">Vé máy bay</a></li>
+                    <li><a class="text-dark" asp-controller="SanPham" asp-action="KhachSan">Khách sạn</a></li>
+                    <li><a class="text-dark" asp-controller="SanPham" asp-action="ChoThueXe">Cho thuê xe</a></li>
+                    <li><a class="text-dark" asp-controller="SanPham" asp-action="VuiChoi">Vui chơi</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <h6 class="fw-bold">Khác</h6>
+                <ul class="list-unstyled">
+                    <li><a class="text-dark" asp-controller="ThongTin" asp-action="ChinhSach">Chính sách</a></li>
+                    <li><a class="text-dark" asp-controller="ThongTin" asp-action="DieuKhoan">Điều khoản</a></li>
+                    <li><a class="text-dark" asp-controller="ThongTin" asp-action="DoiTac">Đối tác</a></li>
+                    <li><a class="text-dark" asp-controller="ThongTin" asp-action="BaoChi">Báo chí</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <h6 class="fw-bold mb-3">Theo dõi chúng tôi</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="bi bi-facebook me-2 text-primary fs-5"></i>
+                        <a class="text-dark" href="#">Facebook</a>
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-instagram me-2 text-danger fs-5"></i>
+                        <a class="text-dark" href="#">Instagram</a>
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-youtube me-2 text-danger fs-5"></i>
+                        <a class="text-dark" href="#">YouTube</a>
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-tiktok me-2 fs-5"></i>
+                        <a class="text-dark" href="#">TikTok</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Đối tác thanh toán -->
+        <div class="text-center mb-4">
+            <h6 class="fw-bold mb-3" style="font-size: 1.2rem;">ĐỐI TÁC THANH TOÁN</h6>
+            <div class="d-flex flex-wrap justify-content-center gap-4">
+
+                @{
+                    string[] logos = {
+                "acb.png","agribank.jpg","bidv.png","hsbc.png","mb.png",
+                "momo.png","scbank.png","teckcombank.jpg","tpbank.png",
+                "vcb.png","vietqr.png","viettin.jpg","vnpay.png"
+                        };
+                }
+
+                @foreach (var logo in logos)
+                {
+                    <div class="partner-box bg-white rounded shadow-sm p-2 d-flex align-items-center justify-content-center">
+                        <img src="~/NewFolder/@logo" class="img-fluid" style="max-height:60px;" />
+                    </div>
+                }
+            </div>
+        </div>
+
+        <hr class="border-dark" />
+        <div class="text-center text-muted">
+            <p>© 2025 - QLĐặtVé – Nền tảng đặt vé máy bay hàng đầu Việt Nam</p>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Hiệu ứng fade-in khi cuộn
+        (function () {
+            const reveals = document.querySelectorAll('.reveal');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.15 });
+
+                reveals.forEach(el => observer.observe(el));
+            } else {
+                reveals.forEach(el => el.classList.add('visible'));
+            }
+        })();
+    </script>
+}

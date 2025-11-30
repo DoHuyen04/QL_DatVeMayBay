@@ -3,60 +3,71 @@
     ViewData["Title"] = "Thanh toán";
 }
 
-<div class="container mt-4">
-    <h2 class="text-info">Thông tin thanh toán</h2>
-
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-
-    <form method="post" asp-action="ThanhToan">
-
-        <!-- Dropdown chọn thẻ hoặc ví -->
-        <div class="mb-3">
-            <label class="form-label">Chọn thẻ/ví đã lưu</label>
-            <select name="SelectedTheId" class="form-select" id="chonThe" required>
-                <option disabled selected value="">-- Chọn thẻ hoặc ví --</option>
-                @foreach (var the in Model.DanhSachThe ?? new List<QLDatVeMayBay.Models.Entities.TheThanhToan>())
-                {
-                    <option value="@the.Id">
-                        @(the.Loai == QLDatVeMayBay.Models.Entities.LoaiTheLoaiVi.TheNganHang
-                            ? $"Thẻ: {the.SoThe} - {the.TenTrenThe}"
-                            : $"Ví: {the.TenVi} - {the.EmailLienKet}")
-                    </option>
-                }
-            </select>
+<div class="d-flex justify-content-center mt-5">
+    <div class="card shadow-lg" style="max-width: 500px; width: 100%;">
+        <div class="card-header text-center bg-info text-white">
+            <h3>Thanh toán vé máy bay</h3>
         </div>
+        <div class="card-body">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-        <!-- Tự động điền thông tin -->
-        <div class="mb-3">
-            <label class="form-label">Số tài khoản / Số ví</label>
-            <input type="text" id="soTaiKhoan" class="form-control" readonly />
+            <form method="post" asp-action="ThanhToan">
+                <!-- Dropdown chọn thẻ hoặc ví -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Chọn thẻ/ví đã lưu</label>
+                    <select name="SelectedTheId" class="form-select" id="chonThe" required>
+                        <option disabled selected value="">-- Chọn thẻ hoặc ví --</option>
+                        @foreach (var the in Model.DanhSachThe ?? new List<QLDatVeMayBay.Models.Entities.TheThanhToan>())
+                        {
+                            <option value="@the.Id">
+                                @(the.Loai == QLDatVeMayBay.Models.Entities.LoaiTheLoaiVi.TheNganHang
+                                    ? $"Thẻ: {the.SoThe} - {the.TenTrenThe}"
+                                    : $"Ví: {the.TenVi} - {the.EmailLienKet}")
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Thông tin thẻ tự động -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Số tài khoản / Số ví</label>
+                    <input type="text" id="soTaiKhoan" class="form-control" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Chủ tài khoản</label>
+                    <input type="text" id="chuTaiKhoan" class="form-control" readonly />
+                </div>
+
+                <!-- Số tiền -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Số tiền cần thanh toán</label>
+                    <input class="form-control fw-bold text-success" value="@Model.SoTien.ToString("N0") đ" readonly />
+                    <input type="hidden" asp-for="SoTien" />
+                </div>
+
+                <!-- Hidden dữ liệu vé -->
+                <input type="hidden" asp-for="Ve.IDNguoiDung" />
+                <input type="hidden" asp-for="Ve.IDChuyenBay" />
+                <input type="hidden" asp-for="Ve.IDGhe" />
+                <input type="hidden" asp-for="Ve.ThoiGianDat" />
+                <input type="hidden" asp-for="Ve.TrangThaiVe" />
+                <input type="hidden" asp-for="PhuongThuc" id="hiddenPhuongThuc" />
+                <input type="hidden" asp-for="TenNganHang" id="hiddenTenNganHang" />
+
+                <input type="hidden" asp-for="ChuTaiKhoan" id="hiddenChuTK" />
+                <input type="hidden" asp-for="SoTaiKhoan" id="hiddenSoTK" />
+                <input type="hidden" asp-for="SelectedTheId" />
+
+                <!-- Nút hành động căn giữa -->
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">Xác thực thanh toán</button>
+                    <a class="btn btn-secondary btn-lg" href="/DatVe/XacNhanVe">Quay lại</a>
+                   
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label class="form-label">Chủ tài khoản</label>
-            <input type="text" id="chuTaiKhoan" class="form-control" readonly />
-        </div>
-
-        <!-- Số tiền -->
-        <div class="mb-3">
-            <label class="form-label">Số tiền cần thanh toán</label>
-            <input class="form-control" value="@Model.SoTien.ToString("N0") đ" readonly />
-            <input type="hidden" asp-for="SoTien" />
-        </div>
-
-        <!-- Hidden dữ liệu vé -->
-        <input type="hidden" asp-for="Ve.IDNguoiDung" />
-        <input type="hidden" asp-for="Ve.IDChuyenBay" />
-        <input type="hidden" asp-for="Ve.IDGhe" />
-        <input type="hidden" asp-for="Ve.ThoiGianDat" />
-        <input type="hidden" asp-for="Ve.TrangThaiVe" />
-        <input type="hidden" asp-for="ChuTaiKhoan" id="hiddenChuTK" />
-        <input type="hidden" asp-for="SoTaiKhoan" id="hiddenSoTK" />
-        <input type="hidden" asp-for="SelectedTheId" />
-
-        <button type="submit" class="btn btn-success">Xác thực thanh toán</button>
-        <a class="btn btn-outline-secondary btn-back" href="javascript:history.back()">← Quay lại</a>
-    </form>
+    </div>
 </div>
 
 <script>
@@ -70,6 +81,9 @@
                 document.getElementById("chuTaiKhoan").value = data.chuTaiKhoan || "";
                 document.getElementById("hiddenSoTK").value = data.soTaiKhoan || "";
                 document.getElementById("hiddenChuTK").value = data.chuTaiKhoan || "";
+                 document.getElementById("hiddenPhuongThuc").value = data.loaiThe || ""; // "Thẻ" hoặc "Ví"
+            document.getElementById("hiddenTenNganHang").value = data.tenNganHang || "";
+
                 document.querySelector("input[name='SelectedTheId']").value = selectedId;
             });
     });
