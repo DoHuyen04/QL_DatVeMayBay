@@ -7,6 +7,19 @@
     var chuyenBay = ViewBag.ChuyenBay as QLDatVeMayBay.Models.ChuyenBay;
     var nguoiDung = ViewBag.NguoiDung as QLDatVeMayBay.Models.NguoiDung;
     var loaiMayBay = ViewBag.LoaiMayBay as QLDatVeMayBay.Models.LoaiMayBay;
+
+    // Hàm chuyển số ghế thành tên ghế theo dãy A-F
+    string GetSeatName(int seatNumber)
+    {
+        int seatsPerRow = 6; // mỗi hàng 6 ghế: A B C D E F
+        string letters = "ABCDEF";
+
+        int row = (seatNumber - 1) / seatsPerRow + 1;   // hàng bắt đầu từ 1
+        int col = (seatNumber - 1) % seatsPerRow;       // cột 0-5
+        char seatLetter = letters[col];
+
+        return $"{seatLetter}{row}";
+    }
 }
 
 <div class="container mt-4">
@@ -23,12 +36,11 @@
                 <div class="card-body">
                     <table class="table table-sm">
                         <tr><th>Họ tên</th><td>@nguoiDung?.HoTen</td></tr>
-
-
                         <tr><th>Chuyến bay</th><td>@ve.IDChuyenBay - @chuyenBay?.MayBay?.TenHangHK</td></tr>
-                        <tr><th>Loại máy bay</th><td>@loaiMayBay?.MoTa</td></tr>
-                        <tr><th>Ghế</th><td>G @ve.IDGhe | Hạng: @ve.HangGhe</td></tr>
-                        <tr><th>Loại vé</th><td>@ve.LoaiVe</td></tr>
+                       
+                        <!-- Hiển thị số ghế theo A1,B1,C1… -->
+                        <tr><th>Ghế</th><td>@GetSeatName(ve.IDGhe) | Hạng: @ve.HangGhe</td></tr>
+
                         <tr><th>Từ</th><td>@chuyenBay?.SanBayDiInfo?.TenSanBay</td></tr>
                         <tr><th>Đến</th><td>@chuyenBay?.SanBayDenInfo?.TenSanBay</td></tr>
                         <tr><th>Cất cánh</th><td>@chuyenBay?.GioCatCanh.ToString("dd/MM/yyyy HH:mm")</td></tr>

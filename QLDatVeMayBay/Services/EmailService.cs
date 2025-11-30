@@ -1,5 +1,4 @@
-﻿
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 using System;
@@ -17,14 +16,60 @@ namespace QLDatVeMayBay.Services
             _configuration = configuration;
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string htmlContent)
+        // ==============================
+        // 🔹 Gửi email cơ bản
+        // ==============================
+        public async Task<bool> SendEmailAsync(string toEmail, string subject, string htmlContent)
+        {
+            try
+            {
+                var email = BuildEmailMessage(toEmail, subject, htmlContent);
+
+                using var smtp = new SmtpClient();
+                await ConnectAndSendAsync(smtp, email);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Lỗi gửi email: " + ex.Message);
+                return false;
+            }
+        }
+
+
+        // ==============================
+        // 🔹 Gửi email có QR code
+        // ==============================
+        public async Task<bool> SendEmailWithQrAsync(string toEmail, string subject, string htmlContent, string qrBase64)
+        {
+            try
+            {
+                string body = string.IsNullOrWhiteSpace(qrBase64)
+                    ? htmlContent.Replace("{qrImage}", "<i>Không có mã QR</i>")
+                    : htmlContent.Replace("{qrImage}", $"<img src='data:image/png;base64,{qrBase64}' width='220' />");
+
+                var email = BuildEmailMessage(toEmail, subject, body);
+
+                using var smtp = new SmtpClient();
+                await ConnectAndSendAsync(smtp, email);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Lỗi gửi email + QR: " + ex.Message);
+                return false;
+            }
+        }
+
+        // ==============================
+        // 🔧 Hàm tạo email chuẩn
+        // ==============================
+        private MimeMessage BuildEmailMessage(string toEmail, string subject, string htmlBody)
         {
             var senderName = _configuration["EmailSettings:SenderName"];
             var senderEmail = _configuration["EmailSettings:SenderEmail"];
-            var smtpServer = _configuration["EmailSettings:SmtpServer"];
-            var port = int.Parse(_configuration["EmailSettings:Port"]);
-            var username = _configuration["EmailSettings:Username"];
-            var password = _configuration["EmailSettings:Password"];
 
             var email = new MimeMessage();
             email.From.Add(new MailboxAddress(senderName, senderEmail));
@@ -33,47 +78,30 @@ namespace QLDatVeMayBay.Services
 
             var builder = new BodyBuilder
             {
-                HtmlBody = htmlContent
+                HtmlBody = htmlBody
             };
 
             email.Body = builder.ToMessageBody();
-
-            using var smtp = new SmtpClient();
-            await smtp.ConnectAsync(smtpServer, port, SecureSocketOptions.StartTls);
-            await smtp.AuthenticateAsync(username, password);
-            await smtp.SendAsync(email);
-            await smtp.DisconnectAsync(true);
+            return email;
         }
-        // Overload: chỉ gửi text (không cần QR)
-        public async Task SendEmailAsync(string toEmail, string subject, string htmlContent, string qrBase64 = null)
+
+        // ==============================
+        // 🔧 Hàm kết nối & gửi SMTP
+        // ==============================
+        private async Task ConnectAndSendAsync(SmtpClient smtp, MimeMessage email)
         {
-            var senderName = _configuration["EmailSettings:SenderName"];
-            var senderEmail = _configuration["EmailSettings:SenderEmail"];
             var smtpServer = _configuration["EmailSettings:SmtpServer"];
             var port = int.Parse(_configuration["EmailSettings:Port"]);
             var username = _configuration["EmailSettings:Username"];
             var password = _configuration["EmailSettings:Password"];
 
-            var email = new MimeMessage();
-            email.From.Add(new MailboxAddress(senderName, senderEmail));
-            email.To.Add(MailboxAddress.Parse(toEmail));
-            email.Subject = subject;
+            SecureSocketOptions socketOption =
+                port == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
 
-            var builder = new BodyBuilder
-            {
-                HtmlBody = qrBase64 != null
-                    ? htmlContent.Replace("{qrImage}", $"<img src='data:image/png;base64,{qrBase64}' width='220' />")
-                    : htmlContent.Replace("{qrImage}", "<i>Không có mã QR</i>")
-            };
-
-            email.Body = builder.ToMessageBody();
-
-            using var smtp = new SmtpClient();
-            await smtp.ConnectAsync(smtpServer, port, SecureSocketOptions.StartTls);
+            await smtp.ConnectAsync(smtpServer, port, socketOption);
             await smtp.AuthenticateAsync(username, password);
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
         }
-
     }
 }

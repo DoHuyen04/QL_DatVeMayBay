@@ -3,22 +3,35 @@
     ViewData["Title"] = "Quên mật khẩu";
 }
 
-<h2>Quên mật khẩu</h2>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4" style="width: 420px; border-radius: 16px;">
 
-<form asp-action="QuenMatKhau" method="post">
-    <div class="form-group">
-        <label>Email hoặc tên đăng nhập</label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+        <h3 class="text-center mb-3" style="font-weight:600;">
+            🔐 Quên mật khẩu
+        </h3>
+
+        <p class="text-muted text-center mb-4">
+            Nhập email hoặc tên đăng nhập để nhận mã xác nhận.
+        </p>
+
+        <form asp-action="QuenMatKhau" method="post">
+
+            <div class="form-group mb-3">
+                <label class="fw-bold">Email đăng ký</label>
+                <input asp-for="Email" class="form-control form-control-lg" placeholder="Nhập email" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 btn-lg" style="border-radius: 8px;">
+                Gửi mã xác nhận
+            </button>
+
+            <a href="javascript:history.back()"
+               class="btn btn-outline-secondary w-100 mt-3"
+               style="border-radius: 8px;">
+                ← Quay lại
+            </a>
+
+        </form>
     </div>
-    <button type="submit" class="btn btn-primary">Gửi mã xác nhận</button>
-    <!-- Nút quay lại -->
-    <a class="btn btn-outline-secondary btn-back" href="javascript:history.back()">← Quay lại</a>
-
-</form>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+</div>

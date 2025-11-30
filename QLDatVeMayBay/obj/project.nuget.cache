@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "uFOu9Z+1h5c=",
+  "dgSpecHash": "ajFgKKOE0F8=",
   "success": true,
-  "projectFilePath": "C:\\workspace\\DoAn_QLDatVeMayBay\\QLDatVeMayBay\\QLDatVeMayBay.csproj",
+  "projectFilePath": "E:\\WEB_VEMAYBAY\\QLDatVeMayBay\\QLDatVeMayBay.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\asus\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\asus\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
@@ -255,7 +255,8 @@
     "C:\\Users\\asus\\.nuget\\packages\\xunit.core\\2.9.3\\xunit.core.2.9.3.nupkg.sha512",
     "C:\\Users\\asus\\.nuget\\packages\\xunit.extensibility.core\\2.9.3\\xunit.extensibility.core.2.9.3.nupkg.sha512",
     "C:\\Users\\asus\\.nuget\\packages\\xunit.extensibility.execution\\2.9.3\\xunit.extensibility.execution.2.9.3.nupkg.sha512",
-    "C:\\Users\\asus\\.nuget\\packages\\xunit.runner.visualstudio\\3.1.3\\xunit.runner.visualstudio.3.1.3.nupkg.sha512"
+    "C:\\Users\\asus\\.nuget\\packages\\xunit.runner.visualstudio\\3.1.3\\xunit.runner.visualstudio.3.1.3.nupkg.sha512",
+    "C:\\Users\\asus\\.nuget\\packages\\microsoft.net.sdk.compilers.toolset\\9.0.305\\microsoft.net.sdk.compilers.toolset.9.0.305.nupkg.sha512"
   ],
   "logs": []
 }

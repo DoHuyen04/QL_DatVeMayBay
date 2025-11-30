@@ -1,36 +1,299 @@
-﻿@model QLDatVeMayBay.Models.ThongTinThanhToan
+﻿@* @model QLDatVeMayBay.Models.ThongTinThanhToan *@
 
-<h2>Xác nhận OTP</h2>
+@* <style> *@
+@* .otp-container { max-width:380px; margin:80px auto; background:#fff; padding:30px 25px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.1); text-align:center; } *@
+@* .otp-container h2 { margin-bottom:20px; font-weight:600; color:#333; } *@
+@* .otp-inputs { display:flex; justify-content:space-between; margin-bottom:20px; } *@
+@* .otp-inputs input { width:40px; height:45px; font-size:1.3rem; text-align:center; border:1.5px solid #ced4da; border-radius:6px; background:#f8f9fa; transition: all 0.2s; } *@
+@* .otp-inputs input:focus { border-color:#28a745; box-shadow:0 0 5px rgba(40,167,69,0.3); outline:none; background:#fff; } *@
+@* .btn-group-otp { display:flex; justify-content:center; gap:10px; margin-bottom:15px; } *@
+@* .btn-group-otp .btn { flex:1; font-size:1rem; } *@
+@* .btn-back { display:inline-block; margin-top:10px; } *@
+@* .alert { font-size:0.9rem; } *@
+@* </style> *@
 
-<form asp-action="KiemTraOTP" method="post">
-    <input type="hidden" asp-for="Ve.IDNguoiDung" />
-    <input type="hidden" asp-for="Ve.IDChuyenBay" />
-    <input type="hidden" asp-for="Ve.IDGhe" />
-    <input type="hidden" asp-for="SoTien" />
-    <input type="hidden" asp-for="PhuongThuc" />
+@* <div class="otp-container"> *@
+@*     <h2>🔒 Xác nhận OTP</h2> *@
+@*     <form asp-action="KiemTraOTP" method="post" id="otpForm" autocomplete="off" novalidate> *@
+@*         <input type="hidden" asp-for="Ve.IDNguoiDung" /> *@
+@*         <input type="hidden" asp-for="Ve.IDChuyenBay" /> *@
+@*         <input type="hidden" asp-for="Ve.IDGhe" /> *@
+@*         <input type="hidden" asp-for="SoTien" /> *@
+@*         <input type="hidden" asp-for="PhuongThuc" /> *@
 
-    <div class="mb-3">
-        <label asp-for="MaOTP" class="form-label">Mã OTP:</label>
-        <input asp-for="MaOTP" class="form-control" />
-        <span asp-validation-for="MaOTP" class="text-danger"></span>
-    </div>
+@*         <div class="otp-inputs"> *@
+@*             @for (int i = 0; i < 6; i++) *@
+@*             { *@
+@*                 <input type="tel" class="otp-digit" inputmode="numeric" pattern="\d*" autocomplete="off" /> *@
+@*             } *@
+@*         </div> *@
 
-    <button type="submit" class="btn btn-success">Xác nhận</button>
-    <!-- Nút dẫn sang trang gửi lại OTP -->
-   
-    <a asp-action="GuiLaiOTP" asp-controller="DatVe" class="btn btn-warning">Gửi lại mã OTP</a>
+@*         <div class="btn-group-otp"> *@
+@*             <button type="submit" class="btn btn-success btn-sm">Xác nhận</button> *@
+@*             <a asp-action="GuiLaiOTP" asp-controller="DatVe" class="btn btn-warning btn-sm">Gửi lại OTP</a> *@
+@*         </div> *@
 
-    <!-- Nút quay lại -->
-    <a class="btn btn-outline-secondary btn-back" href="javascript:history.back()">← Quay lại</a>
+@*         <a class="btn btn-outline-secondary btn-back" href="javascript:history.back()">← Quay lại</a> *@
+@*     </form> *@
+@* </div> *@
 
+@* @section Scripts { *@
+@* <script> *@
+@* const inputs = document.querySelectorAll(".otp-digit"); *@
 
-    @if (ViewBag.Error != null)
-    {
-        <div class="alert alert-danger mt-2">@ViewBag.Error</div>
+@* // Chặn trùng số do autofill/virtual keyboard *@
+@* inputs.forEach((input, idx)=>{ *@
+@*     input.addEventListener("beforeinput", e=>{ *@
+@*         if(!/^\d$/.test(e.data)) e.preventDefault(); *@
+@*     }); *@
+
+@*     input.addEventListener("input", e=>{ *@
+@*         // Lấy số đầu tiên, loại bỏ dư *@
+@*         let val = input.value.replace(/\D/g,'').slice(0,1); *@
+@*         input.value = val; *@
+
+@*         // Nếu có giá trị, xóa ô kế tiếp trước khi focus *@
+@*         if(val && idx < inputs.length-1){ *@
+@*             inputs[idx+1].value = ''; *@
+@*             inputs[idx+1].focus(); *@
+@*         } *@
+@*     }); *@
+
+@*     input.addEventListener("keydown", e=>{ *@
+@*         if(e.key === "Backspace" && !input.value && idx>0){ *@
+@*             inputs[idx-1].focus(); *@
+@*         } *@
+@*         if(e.key === "ArrowLeft" && idx>0) inputs[idx-1].focus(); *@
+@*         if(e.key === "ArrowRight" && idx<inputs.length-1) inputs[idx+1].focus(); *@
+@*     }); *@
+
+@*     input.addEventListener("paste", e=>{ *@
+@*         e.preventDefault(); *@
+@*         const pasteData = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,''); *@
+@*         for(let i=0;i<pasteData.length && idx+i<inputs.length;i++){ *@
+@*             inputs[idx+i].value = pasteData[i]; *@
+@*         } *@
+@*         const next = Math.min(idx+pasteData.length, inputs.length-1); *@
+@*         inputs[next].focus(); *@
+@*     }); *@
+@* }); *@
+
+@* document.getElementById("otpForm").addEventListener("submit", function(e){ *@
+@*     const otp = Array.from(inputs).map(i=>i.value).join(''); *@
+@*     if(otp.length < inputs.length){ *@
+@*         alert("Vui lòng nhập đầy đủ mã OTP."); *@
+@*         e.preventDefault(); *@
+@*         return false; *@
+@*     } *@
+@*     let hidden = document.querySelector("input[name='MaOTP']"); *@
+@*     if(hidden) hidden.remove(); *@
+@*     hidden = document.createElement("input"); *@
+@*     hidden.type="hidden"; *@
+@*     hidden.name="MaOTP"; *@
+@*     hidden.value = otp; *@
+@*     this.appendChild(hidden); *@
+@* }); *@
+@* </script> *@
+@* } *@
+@* <div class="otp-container"> *@
+@*     <h2>🔒 Xác nhận OTP</h2> *@
+@*     <form asp-action="KiemTraOTP" method="post" id="otpForm" autocomplete="off" novalidate> *@
+@*         <input type="hidden" asp-for="Ve.IDNguoiDung" /> *@
+@*         <input type="hidden" asp-for="Ve.IDChuyenBay" /> *@
+@*         <input type="hidden" asp-for="Ve.IDGhe" /> *@
+@*         <input type="hidden" asp-for="SoTien" /> *@
+@*         <input type="hidden" asp-for="PhuongThuc" /> *@
+
+@*         <!-- 1 ô duy nhất, maxlength=6 --> *@
+@*         <input type="tel" id="otp-single" maxlength="6" autocomplete="off" inputmode="numeric" style="opacity:0; position:absolute; z-index:-1;"> *@
+
+@*         <div class="otp-inputs" id="otp-display"> *@
+@*             @for(int i=0;i<6;i++){ *@
+@*                 <div class="otp-digit" data-index="@i"></div> *@
+@*             } *@
+@*         </div> *@
+
+@*         <div class="btn-group-otp"> *@
+@*             <button type="submit" class="btn btn-success btn-sm">Xác nhận</button> *@
+@*         </div> *@
+@*     </form> *@
+@* </div> *@
+
+@* @section Scripts { *@
+@* <script> *@
+@* const single = document.getElementById('otp-single'); *@
+@* const digits = document.querySelectorAll('.otp-digit'); *@
+
+@* function updateDisplay(){ *@
+@*     const val = single.value; *@
+@*     digits.forEach((d,i)=>{ *@
+@*         d.textContent = val[i] || ''; *@
+@*     }); *@
+@* } *@
+
+@* digits.forEach(d=>{ *@
+@*     d.addEventListener('click', ()=>single.focus()); *@
+@* }); *@
+
+@* single.addEventListener('input', updateDisplay); *@
+@* single.addEventListener('keydown', e=>{ *@
+@*     if(e.key==='Backspace') setTimeout(updateDisplay,0); *@
+@* }); *@
+
+@* document.getElementById('otpForm').addEventListener('submit', e=>{ *@
+@*     if(single.value.length<6){ *@
+@*         alert('Vui lòng nhập đầy đủ mã OTP.'); *@
+@*         e.preventDefault(); *@
+@*         return false; *@
+@*     } *@
+@*     let hidden = document.createElement('input'); *@
+@*     hidden.type='hidden'; *@
+@*     hidden.name='MaOTP'; *@
+@*     hidden.value=single.value; *@
+@*     e.target.appendChild(hidden); *@
+@* }); *@
+@* </script> *@
+@* <style> *@
+@* .otp-inputs{display:flex; gap:10px; justify-content:center;} *@
+@* .otp-digit{width:40px; height:45px; border:1.5px solid #ced4da; border-radius:6px; font-size:1.3rem; text-align:center; line-height:45px; background:#f8f9fa; cursor:text;} *@
+@* .otp-digit:focus{border-color:#28a745; box-shadow:0 0 5px rgba(40,167,69,0.3);} *@
+@* </style> *@
+@* } *@
+@model QLDatVeMayBay.Models.ThongTinThanhToan
+
+<style>
+    body {
+        background: #f0f2f5;
+        font-family: 'Segoe UI', sans-serif;
     }
 
-    @if (TempData["ThongBao"] != null)
-    {
-        <div class="alert alert-info mt-2">@TempData["ThongBao"]</div>
+    .otp-container {
+        max-width: 420px;
+        margin: 80px auto;
+        background: #fff;
+        padding: 30px 25px;
+        border-radius: 14px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        text-align: center;
     }
-</form>
+
+        .otp-container h2 {
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+    #otp-single {
+        width: 100%;
+        font-size: 1.6rem;
+        font-weight: 600;
+        padding: 12px;
+        border: 2px solid #ced4da;
+        border-radius: 8px;
+        text-align: center;
+        background: #f8f9fa;
+        transition: all 0.2s;
+        letter-spacing: 6px;
+    }
+
+        #otp-single:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 6px rgba(40,167,69,0.35);
+            outline: none;
+            background: #fff;
+        }
+
+    .alert-custom {
+        display: none;
+        font-size: 0.9rem;
+        color: red;
+        margin-top: 6px;
+    }
+
+    .btn-group-otp {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+        .btn-group-otp .btn {
+            flex: 1;
+            font-size: 1rem;
+            padding: 10px 8px;
+        }
+
+    .btn-back {
+        margin-top: 12px;
+    }
+</style>
+
+<div class="otp-container">
+    <h2>🔒 Xác nhận OTP</h2>
+
+    <form asp-action="KiemTraOTP" method="post" id="otpForm" autocomplete="off" novalidate>
+        <!-- Hidden data -->
+        <input type="hidden" asp-for="Ve.IDNguoiDung" />
+        <input type="hidden" asp-for="Ve.IDChuyenBay" />
+        <input type="hidden" asp-for="Ve.IDGhe" />
+        <input type="hidden" asp-for="SoTien" />
+        <input type="hidden" asp-for="PhuongThuc" />
+
+        <!-- Ô nhập OTP -->
+        <input type="tel" id="otp-single" maxlength="6" inputmode="numeric" pattern="\d*" placeholder="Nhập 6 số OTP" required />
+
+        <div id="otp-error" class="alert-custom">⚠ Chỉ được nhập số!</div>
+
+        <!-- Nút -->
+        <div class="btn-group-otp">
+            <button type="submit" class="btn btn-success">Xác nhận</button>
+            <a asp-action="GuiLaiOTP" asp-controller="DatVe" class="btn btn-warning">Gửi lại mã</a>
+        </div>
+
+        <a class="btn btn-outline-secondary btn-back" href="javascript:history.back()">← Quay lại</a>
+
+        <!-- Thông báo từ server -->
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger mt-3">@ViewBag.Error</div>
+        }
+
+        @if (TempData["ThongBao"] != null)
+        {
+            <div class="alert alert-info mt-3">@TempData["ThongBao"]</div>
+        }
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        const otpInput = document.getElementById('otp-single');
+        const otpError  = document.getElementById('otp-error');
+
+        otpInput.addEventListener('input', () => {
+            const cleaned = otpInput.value.replace(/\D/g, "");
+
+            if (cleaned !== otpInput.value) {
+                otpError.style.display = "block";
+            } else {
+                otpError.style.display = "none";
+            }
+
+            otpInput.value = cleaned.slice(0, 6);
+        });
+
+        document.getElementById('otpForm').addEventListener('submit', function(e){
+            if (otpInput.value.length < 6) {
+                alert("Vui lòng nhập đầy đủ 6 số OTP.");
+                e.preventDefault();
+                return;
+            }
+
+            let hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = "MaOTP";
+            hidden.value = otpInput.value;
+            this.appendChild(hidden);
+        });
+    </script>
+}

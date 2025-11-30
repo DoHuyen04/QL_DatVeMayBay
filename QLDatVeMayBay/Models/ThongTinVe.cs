@@ -22,6 +22,8 @@ namespace QLDatVeMayBay.Models
 
         public string IDGhe { get; set; }
         public decimal GiaVe { get; set; }
+        public string HangGhe { get; set; }
+
         public string QRBase64 { get; set; } // chứa mã QR (Base64)
         public List<TheThanhToan>? DanhSachThe { get; set; }
 
