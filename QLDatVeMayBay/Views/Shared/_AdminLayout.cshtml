@@ -44,9 +44,9 @@
             <li class="nav-item">
                 <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "QuanLyChuyenBay" ? "active" : "")" href="/QuanLyChuyenBay/Index">✈️ Chuyến bay</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "VeMayBay" ? "active" : "")" href="/VeMayBay/Index">🎫 Vé đã đặt</a>
-            </li>
+            @* <li class="nav-item"> *@
+            @*     <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "VeMayBay" ? "active" : "")" href="/VeMayBay/Index">🎫 Vé đã đặt</a> *@
+            @* </li> *@
             <li class="nav-item">
                 <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ThongKe" ? "active" : "")" href="/ThongKe/Index">📊 Thống kê</a>
             </li>

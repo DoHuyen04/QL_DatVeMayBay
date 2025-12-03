@@ -10,7 +10,7 @@
 <h2 class="mt-3">👥 Quản lý người dùng</h2>
 
 <form method="get" class="row g-3 mb-3">
-    <div class="col-md-3">
+    @*<div class="col-md-3">
         <input type="text" name="tuKhoa" class="form-control" placeholder="Tìm theo tên, email, SĐT" value="@tuKhoa" />
     </div>
     <div class="col-md-3">
@@ -25,9 +25,9 @@
     </div>
     <div class="col-md-auto">
         <button type="submit" class="btn btn-primary">🔍 Tìm kiếm</button>
-        <a href="/NguoiDung/Index" class="btn btn-secondary">🔄 Làm mới</a>
+         <a href="/NguoiDung/Index" class="btn btn-secondary">🔄 Làm mới</a>
         <a href="/NguoiDung/XuatExcel?tuKhoa=@ViewBag.TuKhoa&trangThai=@ViewBag.TrangThai&vaiTro=@ViewBag.VaiTro"
-           class="btn btn-success">📄 Xuất Excel</a>
+              class="btn btn-success">📄 Xuất Excel</a>*@
     </div>
 </form>
 
@@ -39,8 +39,8 @@
             <th>Email</th>
             <th>SĐT</th>
             <th>Giới tính</th>
-            <th>Trạng thái</th>
-            <th class="text-center">Hành động</th>
+            @*<th>Trạng thái</th>
+             <th class="text-center">Hành động</th>*@
         </tr>
     </thead>
     <tbody>
@@ -61,11 +61,11 @@
                     <td>@n.Email</td>
                     <td>@n.SoDienThoai</td>
                     <td>@n.GioiTinh</td>
-                    <td>
+                    @* <td>
                         <span class="badge @(trangThai == "HoatDong" ? "bg-success" : "bg-danger")">
                             @(trangThai == "HoatDong" ? "Hoạt động" : "Bị khóa")
                         </span>
-                    </td>
+                    </td> 
                     <td class="text-center">
                         <a class="btn btn-sm btn-info" data-bs-toggle="collapse" href="#@toggleId" role="button" aria-expanded="false">
                             📜 Lịch sử vé
@@ -76,7 +76,7 @@
                             <button type="submit" class="btn btn-sm btn-warning">🔁 Đổi trạng thái</button>
                         </form>
                         <a href="/NguoiDung/XacNhanXoa?tenDangNhap=@n.TenDangNhap" class="btn btn-sm btn-danger">🗑 Xoá</a>
-                    </td>
+                    </td>*@
                 </tr>
 
                 <tr class="collapse" id="@toggleId">
