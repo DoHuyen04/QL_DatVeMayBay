@@ -10,12 +10,12 @@
         <thead class="table-primary text-center">
             <tr>
                 <th>Hãng Hàng Không</th>
-                <th>Loại máy bay</th>
+                @* <th>Loại máy bay</th> *@
                 <th>Sân bay đi</th>
                 <th>Sân bay đến</th>
                 <th>Giờ cất cánh</th>
                 <th>Giờ hạ cánh</th>
-                <th>Giá vé</th>
+                @* <th>Giá vé</th> *@
                 <th>Tình trạng</th>
                 <th></th>
             </tr>
@@ -25,12 +25,12 @@
             {
                 <tr class="align-middle text-center">
                     <td>@cb.MayBay?.TenHangHK</td>
-                    <td>@cb.MayBay?.LoaiMayBay?.MoTa</td>
+                    @* <td>@cb.MayBay?.LoaiMayBay?.MoTa</td> *@
                     <td>@cb.SanBayDiInfo?.TenSanBay</td>
                     <td>@cb.SanBayDenInfo?.TenSanBay</td>
                     <td>@cb.GioCatCanh.ToString("HH:mm dd/MM/yyyy")</td>
                     <td>@cb.GioHaCanh.ToString("HH:mm dd/MM/yyyy")</td>
-                    <td>@cb.GiaVe.ToString("N0") VND</td>
+                    @* <td>@cb.GiaVe.ToString("N0") VND</td> *@
                     <td>
                         @if (cb.TinhTrang == "Đang mở bán")
                         {

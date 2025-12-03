@@ -38,26 +38,26 @@
             <label class="form-label">Đến ngày</label>
             <input type="date" name="denNgay" class="form-control" value="@ViewData["DenNgay"]" />
         </div>
-        <div class="col-md-2">
-            <label class="form-label">Vai trò</label>
-            <select name="vaiTro" class="form-select">
-                <option value="">Tất cả</option>
-                @foreach (var item in (List<SelectListItem>)ViewData["VaiTroList"])
-                {
-                    <option value="@item.Value" selected="@(ViewData["VaiTro"]?.ToString() == item.Value ? "selected" : null)">@item.Text</option>
-                }
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">Trạng thái</label>
-            <select name="trangThai" class="form-select">
-                <option value="">Tất cả</option>
-                @foreach (var item in (List<SelectListItem>)ViewData["TrangThaiList"])
-                {
-                    <option value="@item.Value" selected="@(ViewData["TrangThai"]?.ToString() == item.Value ? "selected" : null)">@item.Text</option>
-                }
-            </select>
-        </div>
+        @* <div class="col-md-2"> *@
+        @*     <label class="form-label">Vai trò</label> *@
+        @*     <select name="vaiTro" class="form-select"> *@
+        @*         <option value="">Tất cả</option> *@
+        @*         @foreach (var item in (List<SelectListItem>)ViewData["VaiTroList"]) *@
+        @*         { *@
+        @*             <option value="@item.Value" selected="@(ViewData["VaiTro"]?.ToString() == item.Value ? "selected" : null)">@item.Text</option> *@
+        @*         } *@
+        @*     </select> *@
+        @* </div> *@
+        @* <div class="col-md-2"> *@
+        @*     <label class="form-label">Trạng thái</label> *@
+        @*     <select name="trangThai" class="form-select"> *@
+        @*         <option value="">Tất cả</option> *@
+        @*         @foreach (var item in (List<SelectListItem>)ViewData["TrangThaiList"]) *@
+        @*         { *@
+        @*             <option value="@item.Value" selected="@(ViewData["TrangThai"]?.ToString() == item.Value ? "selected" : null)">@item.Text</option> *@
+        @*         } *@
+        @*     </select> *@
+        @* </div> *@
         <div class="col-md-2">
             <label class="form-label">Hãng hàng không</label>
             <select name="hangHK" class="form-select">
@@ -73,11 +73,11 @@
         </div>
     </form>
 
-    <div class="d-flex justify-content-end mb-3 gap-2">
-        <a href="@Url.Action("XuatExcel", new { tuNgay = ViewData["TuNgay"], denNgay = ViewData["DenNgay"] })" class="btn btn-primary">📥 Xuất Excel</a>
-        <a href="@Url.Action("XuatPDF", new { tuNgay = ViewData["TuNgay"], denNgay = ViewData["DenNgay"] })" class="btn btn-danger">📄 Xuất PDF</a>
-        <a href="@Url.Action("GuiBaoCaoQuaEmail", new { tuNgay = ViewData["TuNgay"], denNgay = ViewData["DenNgay"], email = "admin@example.com" })" class="btn btn-outline-secondary">📧 Gửi Email</a>
-    </div>
+    @* <div class="d-flex justify-content-end mb-3 gap-2"> *@
+    @*     <a href="@Url.Action("XuatExcel", new { tuNgay = ViewData["TuNgay"], denNgay = ViewData["DenNgay"] })" class="btn btn-primary">📥 Xuất Excel</a> *@
+    @*     <a href="@Url.Action("XuatPDF", new { tuNgay = ViewData["TuNgay"], denNgay = ViewData["DenNgay"] })" class="btn btn-danger">📄 Xuất PDF</a> *@
+    @*     <a href="@Url.Action("GuiBaoCaoQuaEmail", new { tuNgay = ViewData["TuNgay"], denNgay = ViewData["DenNgay"], email = "admin@example.com" })" class="btn btn-outline-secondary">📧 Gửi Email</a> *@
+    @* </div> *@
 
     <div class="row g-4">
         <div class="col-md-3">
@@ -114,35 +114,35 @@
         </div>
     </div>
 
-    <div class="row mt-5 g-4">
-        <div class="col-md-6">
-            <div class="card p-3">
-                <h5 class="mb-3">📈 Doanh thu theo tháng</h5>
-                <canvas id="chartDoanhThu"></canvas>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card p-3">
-                <h5 class="mb-3">🛫 Đặt vé theo sân bay đi</h5>
-                <canvas id="chartSanBay"></canvas>
-            </div>
-        </div>
-    </div>
+    @* <div class="row mt-5 g-4"> *@
+    @*     <div class="col-md-6"> *@
+    @*         <div class="card p-3"> *@
+    @*             <h5 class="mb-3">📈 Doanh thu theo tháng</h5> *@
+    @*             <canvas id="chartDoanhThu"></canvas> *@
+    @*         </div> *@
+    @*     </div> *@
+    @*     <div class="col-md-6"> *@
+    @*         <div class="card p-3"> *@
+    @*             <h5 class="mb-3">🛫 Đặt vé theo sân bay đi</h5> *@
+    @*             <canvas id="chartSanBay"></canvas> *@
+    @*         </div> *@
+    @*     </div> *@
+    @* </div> *@
 
-    <div class="row mt-5 g-4">
-        <div class="col-md-6">
-            <div class="card p-3">
-                <h5 class="mb-3">📉 Tỷ lệ vé huỷ theo tháng</h5>
-                <canvas id="chartVeHuy"></canvas>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card p-3">
-                <h5 class="mb-3">💳 Doanh thu theo phương thức thanh toán</h5>
-                <canvas id="chartTheoPTTT"></canvas>
-            </div>
-        </div>
-    </div>
+    @* <div class="row mt-5 g-4"> *@
+    @*     <div class="col-md-6"> *@
+    @*         <div class="card p-3"> *@
+    @*             <h5 class="mb-3">📉 Tỷ lệ vé huỷ theo tháng</h5> *@
+    @*             <canvas id="chartVeHuy"></canvas> *@
+    @*         </div> *@
+    @*     </div> *@
+    @*     <div class="col-md-6"> *@
+    @*         <div class="card p-3"> *@
+    @*             <h5 class="mb-3">💳 Doanh thu theo phương thức thanh toán</h5> *@
+    @*             <canvas id="chartTheoPTTT"></canvas> *@
+    @*         </div> *@
+    @*     </div> *@
+    @* </div> *@
 
     <div class="mt-5">
         <h4>📋 Bảng thống kê chi tiết</h4>

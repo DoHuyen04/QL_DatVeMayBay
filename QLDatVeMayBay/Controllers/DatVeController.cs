@@ -61,9 +61,10 @@ namespace QLDatVeMayBay.Controllers
                 for (int ghe = 1; ghe <= tongSoGhe; ghe++)
                 {
                     string hang = "Phổ thông";
-                    if (ghe <= 10)
+
+                    if (ghe <= 12)
                         hang = "Thương gia";
-                    else if (ghe <= 30)
+                    else if (ghe <= 24)
                         hang = "Phổ thông đặc biệt";
 
                     _context.GheNgoi.Add(new GheNgoi
@@ -73,6 +74,7 @@ namespace QLDatVeMayBay.Controllers
                         TrangThai = "trong"
                     });
                 }
+
                 await _context.SaveChangesAsync();
             }
 
@@ -91,12 +93,12 @@ namespace QLDatVeMayBay.Controllers
                 string hang = "Phổ thông";
                 decimal gia = giaCoBan;
 
-                if (ghe <= 10)
+                if (ghe <= 12)
                 {
                     hang = "Thương gia";
                     gia = giaCoBan * 1.8m;
                 }
-                else if (ghe <= 30)
+                else if (ghe <= 24)
                 {
                     hang = "Phổ thông đặc biệt";
                     gia = giaCoBan * 1.3m;
