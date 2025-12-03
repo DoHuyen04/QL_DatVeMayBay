@@ -7,6 +7,8 @@ using QLDatVeMayBay.Services;
 using System.Text.Json;
 using static System.Net.Mime.MediaTypeNames;
 using QLDatVeMayBay.Models.Entities;
+using System.Net.Mail;
+using System.Net.Mime;
 
 namespace QLDatVeMayBay.Controllers
 {
@@ -71,6 +73,7 @@ namespace QLDatVeMayBay.Controllers
                     {
                         IDChuyenBay = idChuyenBay,
                         HangGhe = hang,
+                        IDGhe = ghe,
                         TrangThai = "trong"
                     });
                 }
@@ -347,11 +350,154 @@ namespace QLDatVeMayBay.Controllers
             return View("NhapOTP", model);
         }
 
+        //        [HttpPost]
+        //        public async Task<IActionResult> KiemTraOTP(ThongTinThanhToan model)
+        //        {
+
+
+        //            // Lấy mã OTP và thời gian hết hạn từ session
+        //            var otp = HttpContext.Session.GetString("OTP");
+        //            var otpExpStr = HttpContext.Session.GetString("OTP_Expires");
+
+        //            if (string.IsNullOrEmpty(otp) || string.IsNullOrEmpty(otpExpStr))
+        //            {
+        //                ModelState.AddModelError("", "Phiên OTP không hợp lệ. Vui lòng thử lại.");
+        //                return View("NhapOTP", model);
+        //            }
+
+        //            var otpExp = DateTime.Parse(otpExpStr);
+
+        //            if (model.MaOTP != otp || DateTime.Now > otpExp)
+        //            {
+        //                ModelState.AddModelError("MaOTP", "OTP không hợp lệ hoặc đã hết hạn.");
+        //                return View("NhapOTP", model);
+        //            }
+
+        //            // Deserialize dữ liệu ThongTinThanhToan từ session
+        //            var veData = HttpContext.Session.Get("VeTemp");
+        //            var fullModel = JsonSerializer.Deserialize<ThongTinThanhToan>(veData);
+        //            var ve = fullModel.Ve;
+        //            ve.TrangThaiVe = "Đã đặt";
+        //            ve.TheThanhToanId = fullModel.SelectedTheId;
+        //            // Lưu vé vào DB
+        //            _context.VeMayBay.Add(ve);
+        //            await _context.SaveChangesAsync();
+
+
+        //            // Lưu thông tin thanh toán
+        //            var thanhToan = new ThanhToan
+        //            {
+        //                IDVe = ve.IDVe,
+        //                SoTien = fullModel.SoTien,
+        //                PhuongThuc = fullModel.PhuongThuc,
+        //                ThoiGianGiaoDich = DateTime.Now,
+        //                TrangThaiThanhToan = "Thành công"
+        //            };
+        //            _context.ThanhToan.Add(thanhToan);
+        //            await _context.SaveChangesAsync();
+
+        //            // Lấy thông tin chuyến bay
+        //            var chuyenBay = await _context.ChuyenBay
+        //                .Include(cb => cb.MayBay)
+        //                .Include(cb => cb.SanBayDiInfo)
+        //                .Include(cb => cb.SanBayDenInfo)
+        //                .FirstOrDefaultAsync(cb => cb.IDChuyenBay == ve.IDChuyenBay);
+
+        //            // Lấy thông tin người dùng
+        //            var nguoiDung = await _context.NguoiDung.FindAsync(ve.IDNguoiDung);
+        //            if (nguoiDung == null)
+        //            {
+        //                return RedirectToAction("DangNhap", "NguoiDung");
+        //            }
+        //            var the = await _context.TheThanhToan.FindAsync(fullModel.SelectedTheId);
+        //            if (the == null)
+        //            {
+        //                ModelState.AddModelError("", "Thẻ thanh toán không tồn tại.");
+        //                return View("NhapOTP", fullModel);
+        //            }
+        //            // Tên ngân hàng hoặc ví
+        //            string phuongThuc = the?.Loai == LoaiTheLoaiVi.TheNganHang ? "Thẻ ngân hàng" : "Ví điện tử";
+        //            string tenNganHang = the?.Loai == LoaiTheLoaiVi.TheNganHang ? the.TenNganHang : the.TenVi;
+
+        //            // Mã QR
+        //            string qrText = $"""
+        //Mã KH: {ve.IDNguoiDung}
+        //Mã vé: {ve.IDVe}
+        //Chuyến bay: {ve.IDChuyenBay} - {chuyenBay?.MayBay?.TenHangHK}
+        //Điểm đi: {chuyenBay?.SanBayDiInfo?.TenSanBay}
+        //Điểm đến: {chuyenBay?.SanBayDenInfo?.TenSanBay}
+        //Cất cánh: {chuyenBay?.GioCatCanh:dd/MM/yyyy HH:mm}
+        //Hạ cánh: {chuyenBay?.GioHaCanh:dd/MM/yyyy HH:mm}
+        //Ghế: G{ve.IDGhe} | Hạng: {ve.HangGhe}
+        //Loại vé: {ve.LoaiVe ?? "Thường"}
+        //Phương thức thanh toán: {phuongThuc}
+        //Ngân hàng / Ví: {tenNganHang}
+        //Số tài khoản / Số ví: {fullModel.SoTaiKhoan}
+        //Chủ tài khoản: {fullModel.ChuTaiKhoan}
+        //Số tiền: {fullModel.SoTien:N0} VNĐ
+        //""";
+
+        //            var qrBase64 = QRCodeHelper.GenerateQRCodeBase64(qrText);
+
+        //            // Nội dung email HTML
+        //            string emailHtml = $@"
+        //<div style='font-family:Segoe UI,sans-serif; max-width:600px; margin:auto; padding:20px; border:1px solid #ddd; border-radius:10px;'>
+        //    <h2 style='color:#198754;'>✅ Đặt vé thành công!</h2>
+        //    <p>Chào <strong>{nguoiDung.HoTen}</strong>,</p>
+        //    <p>Bạn đã đặt vé thành công. Thông tin vé của bạn:</p>
+
+        //    <h4>✈ Thông tin vé</h4>
+        //    <ul>
+        //        <li><strong>Chuyến bay:</strong> {ve.IDChuyenBay} - {chuyenBay?.MayBay?.TenHangHK}</li>
+        //        <li><strong>Ghế:</strong> G{ve.IDGhe} | Hạng: {ve.HangGhe}</li>
+        //        <li><strong>Loại vé:</strong> {ve.LoaiVe ?? "Thường"}</li>
+        //        <li><strong>Điểm đi:</strong> {chuyenBay?.SanBayDiInfo?.TenSanBay}</li>
+        //        <li><strong>Điểm đến:</strong> {chuyenBay?.SanBayDenInfo?.TenSanBay}</li>
+        //        <li><strong>Cất cánh:</strong> {chuyenBay?.GioCatCanh:dd/MM/yyyy HH:mm}</li>
+        //        <li><strong>Hạ cánh:</strong> {chuyenBay?.GioHaCanh:dd/MM/yyyy HH:mm}</li>
+        //        <li><strong>Trạng thái:</strong> {ve.TrangThaiVe}</li>
+        //    </ul>
+
+        //    <h4>💳 Thông tin thanh toán</h4>
+        //    <ul>
+        //        <li><strong>Phương thức:</strong> {phuongThuc}</li>
+        //        <li><strong>Ngân hàng / Ví:</strong> {tenNganHang}</li>
+        //        <li><strong>Số tài khoản / Số ví:</strong> {fullModel.SoTaiKhoan}</li>
+        //        <li><strong>Chủ tài khoản:</strong> {fullModel.ChuTaiKhoan}</li>
+        //        <li><strong>Số tiền:</strong> {fullModel.SoTien:N0} VNĐ</li>
+        //    </ul>
+
+        //    <h4>🎫 Mã QR vé</h4>
+        //    <div style='text-align:center; margin:20px 0;'>
+        //        <img src='data:image/png;base64,{qrBase64}' width='220' style='border:1px solid #198754; padding:5px; border-radius:5px;' />
+        //    </div>
+
+        //    <p style='font-size:13px; color:#555;'>Vui lòng lưu mã QR hoặc in vé để sử dụng khi làm thủ tục tại sân bay.</p>
+        //    <hr />
+        //    <p style='font-size:12px; color:#999;'>© {DateTime.Now.Year} QLĐặtVé Máy Bay</p>
+        //</div>
+        //";
+
+        //            // Gửi email
+        //            await _emailService.SendEmailAsync(
+        //                nguoiDung.Email,
+        //                "✅ Xác nhận đặt vé thành công",
+        //                emailHtml
+        //            );
+
+
+        //            // Gán dữ liệu cho ViewBag
+        //            ViewBag.QRBase64 = qrBase64;
+        //            ViewBag.Ve = ve;
+        //            ViewBag.ThanhToan = thanhToan;
+        //            ViewBag.ChuyenBay = chuyenBay;
+        //            ViewBag.NguoiDung = nguoiDung;
+
+        //            return View("ThanhToanThanhCong", fullModel);
+        //        }
         [HttpPost]
         public async Task<IActionResult> KiemTraOTP(ThongTinThanhToan model)
         {
-
-
             // Lấy mã OTP và thời gian hết hạn từ session
             var otp = HttpContext.Session.GetString("OTP");
             var otpExpStr = HttpContext.Session.GetString("OTP_Expires");
@@ -363,7 +509,6 @@ namespace QLDatVeMayBay.Controllers
             }
 
             var otpExp = DateTime.Parse(otpExpStr);
-
             if (model.MaOTP != otp || DateTime.Now > otpExp)
             {
                 ModelState.AddModelError("MaOTP", "OTP không hợp lệ hoặc đã hết hạn.");
@@ -376,10 +521,10 @@ namespace QLDatVeMayBay.Controllers
             var ve = fullModel.Ve;
             ve.TrangThaiVe = "Đã đặt";
             ve.TheThanhToanId = fullModel.SelectedTheId;
+
             // Lưu vé vào DB
             _context.VeMayBay.Add(ve);
             await _context.SaveChangesAsync();
-
 
             // Lưu thông tin thanh toán
             var thanhToan = new ThanhToan
@@ -403,20 +548,20 @@ namespace QLDatVeMayBay.Controllers
             // Lấy thông tin người dùng
             var nguoiDung = await _context.NguoiDung.FindAsync(ve.IDNguoiDung);
             if (nguoiDung == null)
-            {
                 return RedirectToAction("DangNhap", "NguoiDung");
-            }
+
             var the = await _context.TheThanhToan.FindAsync(fullModel.SelectedTheId);
             if (the == null)
             {
                 ModelState.AddModelError("", "Thẻ thanh toán không tồn tại.");
                 return View("NhapOTP", fullModel);
             }
+
             // Tên ngân hàng hoặc ví
             string phuongThuc = the?.Loai == LoaiTheLoaiVi.TheNganHang ? "Thẻ ngân hàng" : "Ví điện tử";
             string tenNganHang = the?.Loai == LoaiTheLoaiVi.TheNganHang ? the.TenNganHang : the.TenVi;
 
-            // Mã QR
+            // Tạo nội dung QR code
             string qrText = $"""
 Mã KH: {ve.IDNguoiDung}
 Mã vé: {ve.IDVe}
@@ -434,56 +579,48 @@ Chủ tài khoản: {fullModel.ChuTaiKhoan}
 Số tiền: {fullModel.SoTien:N0} VNĐ
 """;
 
+            // Generate QR Base64
             var qrBase64 = QRCodeHelper.GenerateQRCodeBase64(qrText);
 
-            // Nội dung email HTML
+            // Build email attachment inline
+            var qrAttachment = _emailService.BuildQrAttachment(qrBase64, "qrCodeId");
+
+            // HTML email content, sử dụng cid cho inline QR
             string emailHtml = $@"
-<div style='font-family:Segoe UI,sans-serif; max-width:600px; margin:auto; padding:20px; border:1px solid #ddd; border-radius:10px;'>
-    <h2 style='color:#198754;'>✅ Đặt vé thành công!</h2>
-    <p>Chào <strong>{nguoiDung.HoTen}</strong>,</p>
-    <p>Bạn đã đặt vé thành công. Thông tin vé của bạn:</p>
+<p>Chào <strong>{nguoiDung.HoTen}</strong>, bạn đã đặt vé thành công!</p>
+<h4>✈ Thông tin vé</h4>
+            <ul>
+                <li><strong>Chuyến bay:</strong> {ve.IDChuyenBay} - {chuyenBay?.MayBay?.TenHangHK}</li>
+                <li><strong>Ghế:</strong> G{ve.IDGhe} | Hạng: {ve.HangGhe}</li>
+                <li><strong>Loại vé:</strong> {ve.LoaiVe ?? "Thường"}</li>
+                <li><strong>Điểm đi:</strong> {chuyenBay?.SanBayDiInfo?.TenSanBay}</li>
+                <li><strong>Điểm đến:</strong> {chuyenBay?.SanBayDenInfo?.TenSanBay}</li>
+                <li><strong>Cất cánh:</strong> {chuyenBay?.GioCatCanh:dd/MM/yyyy HH:mm}</li>
+                <li><strong>Hạ cánh:</strong> {chuyenBay?.GioHaCanh:dd/MM/yyyy HH:mm}</li>
+                <li><strong>Trạng thái:</strong> {ve.TrangThaiVe}</li>
+            </ul>
 
-    <h4>✈ Thông tin vé</h4>
-    <ul>
-        <li><strong>Chuyến bay:</strong> {ve.IDChuyenBay} - {chuyenBay?.MayBay?.TenHangHK}</li>
-        <li><strong>Ghế:</strong> G{ve.IDGhe} | Hạng: {ve.HangGhe}</li>
-        <li><strong>Loại vé:</strong> {ve.LoaiVe ?? "Thường"}</li>
-        <li><strong>Điểm đi:</strong> {chuyenBay?.SanBayDiInfo?.TenSanBay}</li>
-        <li><strong>Điểm đến:</strong> {chuyenBay?.SanBayDenInfo?.TenSanBay}</li>
-        <li><strong>Cất cánh:</strong> {chuyenBay?.GioCatCanh:dd/MM/yyyy HH:mm}</li>
-        <li><strong>Hạ cánh:</strong> {chuyenBay?.GioHaCanh:dd/MM/yyyy HH:mm}</li>
-        <li><strong>Trạng thái:</strong> {ve.TrangThaiVe}</li>
-    </ul>
-
-    <h4>💳 Thông tin thanh toán</h4>
-    <ul>
-        <li><strong>Phương thức:</strong> {phuongThuc}</li>
-        <li><strong>Ngân hàng / Ví:</strong> {tenNganHang}</li>
-        <li><strong>Số tài khoản / Số ví:</strong> {fullModel.SoTaiKhoan}</li>
-        <li><strong>Chủ tài khoản:</strong> {fullModel.ChuTaiKhoan}</li>
-        <li><strong>Số tiền:</strong> {fullModel.SoTien:N0} VNĐ</li>
-    </ul>
-
-    <h4>🎫 Mã QR vé</h4>
-    <div style='text-align:center; margin:20px 0;'>
-        <img src='data:image/png;base64,{qrBase64}' width='220' style='border:1px solid #198754; padding:5px; border-radius:5px;' />
-    </div>
-
-    <p style='font-size:13px; color:#555;'>Vui lòng lưu mã QR hoặc in vé để sử dụng khi làm thủ tục tại sân bay.</p>
-    <hr />
-    <p style='font-size:12px; color:#999;'>© {DateTime.Now.Year} QLĐặtVé Máy Bay</p>
-</div>
+            <h4>💳 Thông tin thanh toán</h4>
+            <ul>
+                <li><strong>Phương thức:</strong> {phuongThuc}</li>
+                <li><strong>Ngân hàng / Ví:</strong> {tenNganHang}</li>
+                <li><strong>Số tài khoản / Số ví:</strong> {fullModel.SoTaiKhoan}</li>
+                <li><strong>Chủ tài khoản:</strong> {fullModel.ChuTaiKhoan}</li>
+                <li><strong>Số tiền:</strong> {fullModel.SoTien:N0} VNĐ</li>
+            </ul>
+<p><img src='cid:qrCodeId' width='220'/></p>
+<p>Vui lòng lưu mã QR hoặc in vé để làm thủ tục tại sân bay.</p>
 ";
 
-            // Gửi email
-            await _emailService.SendEmailAsync(
+            // Gửi email với QR inline
+            await _emailService.SendEmailWithAttachmentAsync(
                 nguoiDung.Email,
                 "✅ Xác nhận đặt vé thành công",
-                emailHtml
+                emailHtml,
+                qrAttachment
             );
 
-
-            // Gán dữ liệu cho ViewBag
+            // Gán dữ liệu cho ViewBag để hiển thị trên web
             ViewBag.QRBase64 = qrBase64;
             ViewBag.Ve = ve;
             ViewBag.ThanhToan = thanhToan;
@@ -492,6 +629,7 @@ Số tiền: {fullModel.SoTien:N0} VNĐ
 
             return View("ThanhToanThanhCong", fullModel);
         }
+
 
         [HttpGet]
         public IActionResult NhapOTP()
