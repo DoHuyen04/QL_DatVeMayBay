@@ -1,4 +1,34 @@
-appsettings.json
+# Ignore Visual Studio cache
 .vs/
+
+# Build output
 bin/
 obj/
+
+# User-specific files
+*.user
+*.suo
+*.cache
+*.dbmdl
+
+# Auto-generated files
+*.dll
+*.exe
+*.pdb
+*.tmp
+*.log
+
+# ASP.NET Core static assets
+**/staticwebassets.build.json
+**/staticwebassets.development.json
+**/staticwebassets.endpoints.json
+**/staticwebassets.runtime.json
+
+# Publish folder
+publish/
+
+# Backup & temp
+*.psess
+*.vsp
+*.pfx
+*.snk
