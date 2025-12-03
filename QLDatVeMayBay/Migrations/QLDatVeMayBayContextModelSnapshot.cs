@@ -109,14 +109,9 @@ namespace QLDatVeMayBay.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("TheThanhToanId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NguoiDungId");
-
-                    b.HasIndex("TheThanhToanId");
 
                     b.ToTable("TheThanhToan");
                 });
@@ -181,7 +176,6 @@ namespace QLDatVeMayBay.Migrations
                 {
                     b.Property<int>("LoaiMayBayId")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LoaiMayBayId"));
@@ -233,9 +227,6 @@ namespace QLDatVeMayBay.Migrations
                     b.Property<int>("LoaiMayBayId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LoaiMayBayId1")
-                        .HasColumnType("int");
-
                     b.Property<string>("TenHangHK")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -244,8 +235,6 @@ namespace QLDatVeMayBay.Migrations
                     b.HasKey("IDMayBay");
 
                     b.HasIndex("LoaiMayBayId");
-
-                    b.HasIndex("LoaiMayBayId1");
 
                     b.ToTable("MayBay");
                 });
@@ -487,10 +476,6 @@ namespace QLDatVeMayBay.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("QLDatVeMayBay.Models.Entities.TheThanhToan", null)
-                        .WithMany("DanhSach")
-                        .HasForeignKey("TheThanhToanId");
-
                     b.Navigation("NguoiDung");
                 });
 
@@ -519,14 +504,10 @@ namespace QLDatVeMayBay.Migrations
             modelBuilder.Entity("QLDatVeMayBay.Models.MayBay", b =>
                 {
                     b.HasOne("QLDatVeMayBay.Models.LoaiMayBay", "LoaiMayBay")
-                        .WithMany()
+                        .WithMany("MayBays")
                         .HasForeignKey("LoaiMayBayId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("QLDatVeMayBay.Models.LoaiMayBay", null)
-                        .WithMany("MayBays")
-                        .HasForeignKey("LoaiMayBayId1");
 
                     b.Navigation("LoaiMayBay");
                 });
@@ -600,11 +581,6 @@ namespace QLDatVeMayBay.Migrations
                     b.Navigation("ThanhToan");
 
                     b.Navigation("TheThanhToan");
-                });
-
-            modelBuilder.Entity("QLDatVeMayBay.Models.Entities.TheThanhToan", b =>
-                {
-                    b.Navigation("DanhSach");
                 });
 
             modelBuilder.Entity("QLDatVeMayBay.Models.LoaiMayBay", b =>

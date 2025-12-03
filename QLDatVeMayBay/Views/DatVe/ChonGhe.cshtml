@@ -4,16 +4,14 @@
     ViewData["Title"] = "Chọn ghế";
     int tongSoGhe = Model.TongSoGhe;
     var gheDaDat = Model.GheDaDat;
-    var thongTinGhe = Model.ThongTinGhe; // Dictionary<int, (string HangVe, decimal Gia)>
+    var thongTinGhe = Model.ThongTinGhe; // Dictionary<int, (HangGhe, Gia)>
 }
 
 <h2 class="text-primary mb-4 text-center">Chọn ghế</h2>
 
 @if (TempData["LoiChonGhe"] != null)
 {
-    <div class="alert alert-danger mt-2 text-center">
-        @TempData["LoiChonGhe"]
-    </div>
+    <div class="alert alert-danger text-center">@TempData["LoiChonGhe"]</div>
 }
 
 <style>
@@ -21,39 +19,30 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-top: 20px;
     }
 
     .seat-row {
         display: flex;
-        align-items: center;
         justify-content: center;
         margin-bottom: 12px;
     }
 
     .aisle {
-        width: 45px;
+        width: 40px;
     }
 
     .seat {
         width: 55px;
         height: 55px;
-        margin: 6px;
         border-radius: 8px;
         font-weight: bold;
         display: flex;
         align-items: center;
         justify-content: center;
+        margin: 6px;
         cursor: pointer;
-        transition: 0.2s;
         border: 2px solid transparent;
-        text-align: center;
-        position: relative;
     }
-
-        .seat:hover {
-            transform: scale(1.1);
-        }
 
     .seat-available {
         background: #28a745;
@@ -64,7 +53,6 @@
         background: #dc3545;
         color: white;
         cursor: not-allowed;
-        opacity: 0.7;
     }
 
     .seat-selected {
@@ -72,68 +60,69 @@
         color: white;
     }
 
-    .seat-actions {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin-top: 30px;
+    /* Hạng ghế */
+    .seat-business {
+        background: #d4a017 !important;
     }
 
-        .seat-actions .btn {
-            min-width: 120px;
-        }
+    .seat-premium {
+        background: #7b3fa1 !important;
+    }
+
+    .seat-economy {
+        background: #2ecc71 !important;
+    }
 
     /* Tooltip */
     .tooltip-seat {
         position: absolute;
-        background: rgba(0,0,0,0.88);
-        color: #fff;
-        padding: 10px 14px;
+        background: black;
+        color: white;
+        padding: 10px;
         border-radius: 8px;
         font-size: 14px;
-        pointer-events: none;
-        z-index: 1000;
-        white-space: nowrap;
         opacity: 0;
+        white-space: nowrap;
+        pointer-events: none;
         transform: translate(-50%, -120%);
-        transition: opacity 0.2s ease-in-out;
+        transition: opacity .2s;
     }
 
         .tooltip-seat.show {
             opacity: 1;
         }
-    /* Toast thông báo */
+
+    /* Toast */
     .toast-seat {
         position: fixed;
-        bottom: 30px;
-        right: 30px;
+        bottom: 25px;
+        right: 25px;
         background: #007bff;
         color: white;
-        padding: 14px 20px;
+        padding: 12px 20px;
         border-radius: 8px;
-        font-size: 16px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         opacity: 0;
-        transform: translateY(40px);
-        transition: all 0.35s ease-in-out;
-        z-index: 9999;
+        transform: translateY(30px);
+        transition: all .3s;
     }
 
         .toast-seat.show {
             opacity: 1;
             transform: translateY(0);
         }
-
 </style>
 
 <form asp-action="XacNhanVe" method="post" onsubmit="return kiemTraChonGhe();">
     <input type="hidden" name="idChuyenBay" value="@Model.IDChuyenBay" />
-    <input type="hidden" id="GiaVe" name="giaVe" value="" />
-    <input type="hidden" id="HangGhe" name="hangGhe" value="" />
+    <input type="hidden" id="GiaVe" name="giaVe" />
+    <input type="hidden" id="HangGhe" name="hangGhe" />
+
     <div class="seat-container">
+
         @for (int row = 1; row <= Math.Ceiling((double)tongSoGhe / 6); row++)
         {
             <div class="seat-row">
+
                 @{
                     string[] seatCols = { "A", "B", "C", "D", "E", "F" };
                 }
@@ -144,72 +133,77 @@
                     if (seatNumber > tongSoGhe) { continue; }
 
                     bool daDat = gheDaDat.Contains(seatNumber);
-                    string seatId = $"ghe_{seatNumber}";
+
                     string seatLabel = $"{row}{seatCols[col]}";
+
+                    // Xác định class theo hạng
+                    string hang = thongTinGhe[seatNumber].HangGhe;
+                    string classHang = hang switch
+                    {
+                        "Thương gia" => "seat-business",
+                        "Phổ thông đặc biệt" => "seat-premium",
+                        _ => "seat-economy"
+                    };
 
                     if (col == 3)
                     {
                         <div class="aisle"></div>
-                        ;
                     }
 
                     <div>
                         <input type="radio" name="idGhe" value="@seatNumber"
-                               id="@seatId" hidden
-                               class="seat-radio"
-                        @(daDat ? "disabled" : "") />
+                               id="seat_@seatNumber" hidden @(daDat ? "disabled" : "") />
 
-                        <label for="@seatId"
-                               class="seat @(daDat ? "seat-unavailable" : "seat-available")"
-                               data-seat="@seatNumber"
-                               data-hang="@thongTinGhe[seatNumber].HangGhe"
-                               data-gia="@thongTinGhe[seatNumber].Gia">
+                        <label for="seat_@seatNumber"
+                               class="seat @(daDat ? "seat-unavailable" : classHang) "
+                               data-seat="@seatLabel"
+                               data-hang="@hang"
+                               @using System.Globalization
+                           data-gia="@thongTinGhe[seatNumber].Gia.ToString(CultureInfo.InvariantCulture)"
+                           style="@(daDat ? "opacity:0.6;" : "")">
                             @seatLabel
                         </label>
                     </div>
                 }
+
             </div>
         }
     </div>
 
-    <div class="seat-actions" style="justify-content: center;">
-        <a class="btn btn-secondary btn-lg" href="/ChuyenBay/TimKiem">Quay lại</a>
+    <div class="text-center mt-4">
+        <a href="/ChuyenBay/TimKiem" class="btn btn-secondary">Quay lại</a>
         <button type="submit" class="btn btn-primary">Đặt vé</button>
-    </div><div id="toastSeat" class="toast-seat"></div>
+    </div>
 
+    <div id="toastSeat" class="toast-seat"></div>
 </form>
 
 @section Scripts {
     <script>
-        // Tooltip element
+        // Tooltip
         const tooltip = document.createElement("div");
         tooltip.className = "tooltip-seat";
         document.body.appendChild(tooltip);
 
-        // Tooltip hiển thị thông tin ghế
         document.querySelectorAll(".seat").forEach(seat => {
-            seat.addEventListener("mousemove", function (e) {
-                if (this.classList.contains("seat-unavailable")) return;
+            seat.addEventListener("mousemove", e => {
+                if (seat.classList.contains("seat-unavailable")) return;
 
-                const hang = this.getAttribute("data-hang");
-                const gia = Number(this.getAttribute("data-gia")).toLocaleString('vi-VN');
-
-                tooltip.innerHTML = `
-                    <b>Hạng vé:</b> ${hang}<br>
-                    <b>Giá:</b> ${gia} VNĐ
-                `;
+                tooltip.innerHTML =
+                    `<b>Hạng:</b> ${seat.dataset.hang}<br>
+                     <b>Giá:</b> ${Number(seat.dataset.gia).toLocaleString("vi-VN")} VNĐ`;
 
                 tooltip.style.left = (e.pageX + 15) + "px";
                 tooltip.style.top = (e.pageY - 40) + "px";
                 tooltip.classList.add("show");
             });
 
-            seat.addEventListener("mouseleave", function () {
+            seat.addEventListener("mouseleave", () => {
                 tooltip.classList.remove("show");
             });
         });
 
-        // Đổi màu ghế được chọn
+        // Click chọn ghế
         document.querySelectorAll(".seat").forEach(seat => {
             seat.addEventListener("click", function () {
                 if (this.classList.contains("seat-unavailable")) return;
@@ -217,61 +211,38 @@
                 document.querySelectorAll(".seat").forEach(s =>
                     s.classList.remove("seat-selected")
                 );
-
                 this.classList.add("seat-selected");
+
+                // Gán radio
+                document.getElementById("seat_" + this.dataset.seat.replace(/[A-F]/, "")).checked = true;
+
+                // Gán hidden
+                document.getElementById("GiaVe").value = this.dataset.gia;
+                document.getElementById("HangGhe").value = this.dataset.hang;
+
+                // Toast
+                showToast(
+                    `Đã chọn ghế <b>${this.dataset.seat}</b> – ${this.dataset.hang} – <b>${Number(this.dataset.gia).toLocaleString("vi-VN")} VNĐ</b>`
+                );
             });
         });
 
+        // Toast
+        function showToast(msg) {
+            const t = document.getElementById("toastSeat");
+            t.innerHTML = msg;
+            t.classList.add("show");
+
+            setTimeout(() => t.classList.remove("show"), 2500);
+        }
+
+        // Kiểm tra
         function kiemTraChonGhe() {
-            const checked = document.querySelector("input[name=idGhe]:checked");
-            if (!checked) {
-                alert("Vui lòng chọn ghế trước khi đặt vé.");
+            if (!document.querySelector("input[name=idGhe]:checked")) {
+                alert("Vui lòng chọn ghế!");
                 return false;
             }
             return true;
         }
-                // Đổi màu ghế được chọn + hiện thông báo
-        document.querySelectorAll(".seat").forEach(seat => {
-            seat.addEventListener("click", function () {
-                if (this.classList.contains("seat-unavailable")) return;
-
-                // Xóa màu cũ
-                document.querySelectorAll(".seat").forEach(s =>
-                    s.classList.remove("seat-selected")
-                );
-
-                // Thêm màu mới
-                this.classList.add("seat-selected");
-
-                // Lấy thông tin ghế
-                const seatNumber = this.getAttribute("data-seat");
-                const hang = this.getAttribute("data-hang");
-                const gia = Number(this.getAttribute("data-gia")).toLocaleString('vi-VN');
-
-                // Hiện toast
-                showToast(`Đã chọn ghế <b>${seatNumber}</b> – Hạng: <b>${hang}</b> – Giá: <b>${gia} VNĐ</b>`);
-            });
-        });
-             document.querySelectorAll(".seat-radio").forEach(r => {
-            r.addEventListener("change", function () {
-                var label = document.querySelector("label[for='" + this.id + "']");
-                var gia = label.getAttribute("data-gia");
-                var hang = label.getAttribute("data-hang");
-
-                document.getElementById("GiaVe").value = gia;
-                document.getElementById("HangGhe").value = hang;
-            });
-        });
-        // Hàm hiện thông báo nhỏ (toast)
-        function showToast(message) {
-            const toast = document.getElementById("toastSeat");
-            toast.innerHTML = message;
-            toast.classList.add("show");
-
-            setTimeout(() => {
-                toast.classList.remove("show");
-            }, 2500);
-        }
-
     </script>
 }

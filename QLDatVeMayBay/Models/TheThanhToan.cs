@@ -45,7 +45,7 @@ namespace QLDatVeMayBay.Models.Entities
         public string? SoDienThoai { get; set; }
 
         public DateTime? NgayLienKet { get; set; }
-
+        [NotMapped]
         public List<TheThanhToan> DanhSach { get; set; } = new();
     }
 

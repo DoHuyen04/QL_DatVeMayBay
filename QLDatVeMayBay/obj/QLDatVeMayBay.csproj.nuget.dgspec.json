@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "E:\\WEB_VEMAYBAY\\QLDatVeMayBay\\QLDatVeMayBay.csproj": {}
+    "C:\\Users\\DOWNLOAD\\Source\\Repos\\QL_DatVeMayBay\\QLDatVeMayBay\\QLDatVeMayBay.csproj": {}
   },
   "projects": {
-    "E:\\WEB_VEMAYBAY\\QLDatVeMayBay\\QLDatVeMayBay.csproj": {
+    "C:\\Users\\DOWNLOAD\\Source\\Repos\\QL_DatVeMayBay\\QLDatVeMayBay\\QLDatVeMayBay.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\WEB_VEMAYBAY\\QLDatVeMayBay\\QLDatVeMayBay.csproj",
+        "projectUniqueName": "C:\\Users\\DOWNLOAD\\Source\\Repos\\QL_DatVeMayBay\\QLDatVeMayBay\\QLDatVeMayBay.csproj",
         "projectName": "QLDatVeMayBay",
-        "projectPath": "E:\\WEB_VEMAYBAY\\QLDatVeMayBay\\QLDatVeMayBay.csproj",
-        "packagesPath": "C:\\Users\\asus\\.nuget\\packages\\",
-        "outputPath": "E:\\WEB_VEMAYBAY\\QLDatVeMayBay\\obj\\",
+        "projectPath": "C:\\Users\\DOWNLOAD\\Source\\Repos\\QL_DatVeMayBay\\QLDatVeMayBay\\QLDatVeMayBay.csproj",
+        "packagesPath": "C:\\Users\\DOWNLOAD\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\DOWNLOAD\\Source\\Repos\\QL_DatVeMayBay\\QLDatVeMayBay\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\asus\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\DOWNLOAD\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -131,12 +130,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.Net.Sdk.Compilers.Toolset",
-              "version": "[9.0.305, 9.0.305]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -145,7 +138,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

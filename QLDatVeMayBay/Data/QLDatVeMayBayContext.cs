@@ -44,7 +44,7 @@ namespace QLDatVeMayBay.Data
 
             modelBuilder.Entity<MayBay>()
                 .HasOne(m => m.LoaiMayBay)
-                .WithMany()
+                .WithMany(l => l.MayBays)
                 .HasForeignKey(m => m.LoaiMayBayId)
                 .OnDelete(DeleteBehavior.Restrict);
 

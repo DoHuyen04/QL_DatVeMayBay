@@ -1,8 +1,20 @@
 ﻿@model QLDatVeMayBay.Models.ViewModels.TheThanhToanViewModel
 @using QLDatVeMayBay.Models.Entities;
+
+
 @{
     ViewData["Title"] = "Thẻ của tôi";
 }
+@{
+    var danhSachThe = Model.DanhSach?
+        .Where(x => x.Loai == LoaiTheLoaiVi.TheNganHang)
+        .ToList() ?? new List<TheThanhToan>();
+
+    var danhSachVi = Model.DanhSach?
+        .Where(x => x.Loai == LoaiTheLoaiVi.ViDienTu)
+        .ToList() ?? new List<TheThanhToan>();
+}
+
 
 <div class="container mt-5 text-center">
     <h2 class="fw-bold mb-4">@ViewData["Title"]</h2>
@@ -26,15 +38,17 @@
     <div id="form-the" class="card mx-auto mb-4 shadow-sm" style="max-width: 600px; display: none;">
         <div class="card-header bg-primary text-white fw-bold">Thêm thẻ ngân hàng</div>
         <div class="card-body">
-            <form method="post" asp-action="CreateTheNganHang">
+            <form method="post" asp-action="CreateTheNganHang" id="formTheNganHang">
                 <input type="hidden" name="Loai" value="0" />
-                <!-- Dropdown Tên ngân hàng -->
+
+                <!-- Tên ngân hàng -->
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Tên ngân hàng</label>
                     </div>
                     <div class="col-md-8">
-                        <select asp-for="TenNganHang" name="TenNganHang" class="form-select" required>
+                        <select asp-for="TenNganHang" name="TenNganHang"
+                                class="form-select" id="TenNganHang">
                             <option value="">-- Chọn ngân hàng --</option>
                             <option>Vietcombank</option>
                             <option>Techcombank</option>
@@ -46,53 +60,68 @@
                             <option>VPBank</option>
                             <option>Sacombank</option>
                         </select>
+                        <div class="text-danger small" id="TenNganHangError"></div>
                     </div>
                 </div>
 
+                <!-- Số thẻ -->
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Số thẻ</label>
                     </div>
                     <div class="col-md-8">
-                        <input asp-for="SoThe" name="SoThe" class="form-control" required />
+                        <input asp-for="SoThe" name="SoThe"
+                               class="form-control" id="SoThe" autocomplete="off" />
+                        <div class="text-danger small" id="SoTheError"></div>
                     </div>
                 </div>
 
+                <!-- Tên in trên thẻ -->
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Tên in trên thẻ</label>
                     </div>
                     <div class="col-md-8">
-                        <input asp-for="TenTrenThe" name="TenTrenThe" class="form-control" required />
+                        <input asp-for="TenTrenThe" name="TenTrenThe"
+                               class="form-control" id="TenTrenThe" autocomplete="off" />
+                        <div class="text-danger small" id="TenTrenTheError"></div>
                     </div>
                 </div>
 
+                <!-- Hiệu lực -->
                 <div class="row mb-3">
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">Hiệu lực (MM/yyyy)</label>
+                        <label class="form-label fw-bold">Hiệu lực (dd/MM/yyyy)</label>
                     </div>
                     <div class="col-md-8">
-                        <input asp-for="HieuLuc" name="HieuLuc" class="form-control" required />
+                        <input asp-for="HieuLuc" name="HieuLuc"
+                               class="form-control" id="HieuLuc"
+                               placeholder="dd/MM/yyyy"
+                               maxlength="10"
+                               autocomplete="off" />
+
+                        <div class="text-danger small" id="HieuLucError"></div>
                     </div>
                 </div>
 
+                <!-- CVV -->
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">CVV</label>
                     </div>
                     <div class="col-md-8">
-                        <input asp-for="CVV" name="CVV" class="form-control" required />
+                        <input asp-for="CVV" name="CVV"
+                               class="form-control" id="CVV" autocomplete="off" />
+                        <div class="text-danger small" id="CVVError"></div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">
+
+                <button type="submit" class="btn btn-primary w-100" id="btnLuuThe" disabled>
                     <i class="bi bi-save2 me-1"></i> Lưu
                 </button>
             </form>
         </div>
     </div>
-
-
-
     <!-- 🔻 FORM: Thêm ví điện tử -->
     <div id="form-vi" class="card mx-auto mb-4 shadow-sm" style="max-width: 600px; display: none;">
         <div class="card-header bg-success text-white fw-bold">Thêm ví điện tử</div>
@@ -128,12 +157,11 @@
         </div>
     </div>
 </div>
-
-<!-- 📋 DANH SÁCH -->
+ <!-- 📋 DANH SÁCH -->
 <div class="container-fluid px-5 mb-5">
     <h4 class="fw-bold mb-3">Danh sách thẻ và ví</h4>
 
-    @if (!Model.DanhSach.Any())
+    @if (Model.DanhSach == null || !Model.DanhSach.Any())
     {
         <div class="alert alert-info text-center rounded-3 p-4 shadow-sm border">
             Bạn chưa thêm thẻ hoặc ví nào.
@@ -141,50 +169,98 @@
     }
     else
     {
-        <div class="row">
-        @using QLDatVeMayBay.Models.Entities
 
-            @foreach (var item in Model.DanhSach)
+        <!-- Nút chọn tab -->
+        <div class="d-flex gap-2 mb-3">
+            <button type="button"
+                    class="btn btn-primary btn-tab-ds active"
+                    data-target="#ds-the">
+                Danh sách thẻ
+            </button>
+            <button type="button"
+                    class="btn btn-outline-primary btn-tab-ds"
+                    data-target="#ds-vi">
+                Danh sách ví
+            </button>
+        </div>
+
+        <!-- TAB: DANH SÁCH THẺ -->
+        <div id="ds-the" class="row tab-pane-ds g-3">
+            @if (!danhSachThe.Any())
             {
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            @if (item.Loai == LoaiTheLoaiVi.TheNganHang)
-                            {
+                <div class="col-12">
+                    <div class="alert alert-info">Bạn chưa thêm thẻ ngân hàng nào.</div>
+                </div>
+            }
+            else
+            {
+                @foreach (var item in danhSachThe)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
                                 <p><strong>Số thẻ:</strong> @item.SoThe</p>
                                 <p><strong>Tên in trên thẻ:</strong> @item.TenTrenThe</p>
                                 <p><strong>Hiệu lực:</strong> @item.HieuLuc</p>
                                 <p><strong>CVV:</strong> @item.CVV</p>
                                 <p><strong>Ngày liên kết:</strong> @item.NgayLienKet?.ToString("dd/MM/yyyy")</p>
-                            }
-                            else if (item.Loai == LoaiTheLoaiVi.ViDienTu)
-                            {
+                            </div>
+                            <div class="card-footer d-flex justify-content-between">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-pencil-square"></i> Sửa
+                                </a>
+                                <a href="#" class="btn btn-sm btn-danger btn-xoa"
+                                   data-url="@Url.Action("Delete", "TheThanhToan", new { id = item.Id })">
+                                    <i class="bi bi-trash"></i> Xoá
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- TAB: DANH SÁCH VÍ -->
+        <div id="ds-vi" class="row tab-pane-ds g-3 d-none">
+            @if (!danhSachVi.Any())
+            {
+                <div class="col-12">
+                    <div class="alert alert-info">Bạn chưa thêm ví điện tử nào.</div>
+                </div>
+            }
+            else
+            {
+                @foreach (var item in danhSachVi)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
                                 <p><strong>Tên ví:</strong> @item.TenVi</p>
                                 <p><strong>Email liên kết:</strong> @item.EmailLienKet</p>
                                 <p><strong>Số điện thoại:</strong> @item.SoDienThoai</p>
                                 <p><strong>Tên hiển thị:</strong> @item.TenHienThi</p>
                                 <p><strong>Ngày liên kết:</strong> @item.NgayLienKet?.ToString("dd/MM/yyyy")</p>
-                            }
-                        </div>
-                        <div class="card-footer d-flex justify-content-between">
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
-                                <i class="bi bi-pencil-square"></i> Sửa
-                            </a>
-                            <a href="#" class="btn btn-sm btn-danger btn-xoa" data-url="@Url.Action("Delete", "TheThanhToan", new { id = item.Id })">
-                                <i class="bi bi-trash"></i> Xoá
-                            </a>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-pencil-square"></i> Sửa
+                                </a>
+                                <a href="#" class="btn btn-sm btn-danger btn-xoa"
+                                   data-url="@Url.Action("Delete", "TheThanhToan", new { id = item.Id })">
+                                    <i class="bi bi-trash"></i> Xoá
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
             }
-
         </div>
     }
 </div>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         // Xoá xác nhận
         document.querySelectorAll('.btn-xoa').forEach(button => {
@@ -222,6 +298,163 @@
         btnShowVi?.addEventListener("click", () => {
             formThe.style.display = "none";
             formVi.style.display = "block";
+        });
+    </script>
+    <script>
+        // Chuyển tab Danh sách thẻ / Danh sách ví
+        document.addEventListener("DOMContentLoaded", function () {
+            const tabButtons = document.querySelectorAll(".btn-tab-ds");
+            const tabPanes = document.querySelectorAll(".tab-pane-ds");
+
+            tabButtons.forEach(btn => {
+                btn.addEventListener("click", function () {
+                    // đổi style nút
+                    tabButtons.forEach(b => {
+                        b.classList.remove("btn-primary", "active");
+                        b.classList.add("btn-outline-primary");
+                    });
+                    this.classList.add("btn-primary", "active");
+                    this.classList.remove("btn-outline-primary");
+
+                    // ẩn tất cả pane
+                    tabPanes.forEach(p => p.classList.add("d-none"));
+
+                    // hiện pane được chọn
+                    const target = this.getAttribute("data-target");
+                    const pane = document.querySelector(target);
+                    if (pane) pane.classList.remove("d-none");
+                });
+            });
+        });
+    </script>
+
+    <!-- 💳 Validate Thẻ ngân hàng -->
+    <script>
+        const soTheInput = document.getElementById("SoThe");
+        const hieuLucInput = document.getElementById("HieuLuc");
+        const cvvInput = document.getElementById("CVV");
+        const tenNganHangSelect = document.getElementById("TenNganHang");
+        const tenTrenTheInput = document.getElementById("TenTrenThe");
+        const btnLuuThe = document.getElementById("btnLuuThe");
+        const formTheNganHang = document.getElementById("formTheNganHang");
+
+        const soTheError = document.getElementById("SoTheError");
+        const hieuLucError = document.getElementById("HieuLucError");
+        const cvvError = document.getElementById("CVVError");
+        const tenNganHangError = document.getElementById("TenNganHangError");
+        const tenTrenTheError = document.getElementById("TenTrenTheError");
+
+        // Số thẻ: chỉ số, không chữ/ký tự đặc biệt
+        soTheInput.addEventListener("input", function () {
+            const raw = this.value;
+            const digits = raw.replace(/\D/g, "");
+            if (raw !== digits) {
+                soTheError.textContent = "Không được chứa kí tự đặc biệt hoặc chữ cái.";
+            } else {
+                soTheError.textContent = "";
+            }
+            this.value = digits;
+            validateFormThe();
+        });
+
+        // CVV: tối đa 4 số, không chữ/ký tự đặc biệt
+        cvvInput.addEventListener("input", function () {
+            let raw = this.value;
+            let digits = raw.replace(/\D/g, "");
+            if (digits.length > 4) {
+                digits = digits.slice(0, 4);
+            }
+
+            if (raw !== digits) {
+                cvvError.textContent = "CVV chỉ được chứa số.";
+            } else {
+                cvvError.textContent = "";
+            }
+
+            this.value = digits;
+            validateFormThe();
+        });
+                // HIỆU LỰC: cho nhập tay dd/MM/yyyy, chỉ cho số và dấu /
+        hieuLucInput.addEventListener("input", function () {
+            let value = this.value;
+
+            // Chỉ giữ số và dấu /
+            value = value.replace(/[^0-9\/]/g, "");
+
+            // Tối đa 10 ký tự (dd/MM/yyyy)
+            if (value.length > 10) {
+                value = value.slice(0, 10);
+            }
+
+            this.value = value;
+
+            // Nếu đang gõ dở thì chỉ cần enable/disable nút
+            validateFormThe();
+        });
+
+        // Khi rời ô (blur) thì mới check format dd/MM/yyyy
+        hieuLucInput.addEventListener("blur", function () {
+            const v = this.value.trim();
+
+            if (!v) {
+                hieuLucError.textContent = "Ngày hiệu lực không được để trống.";
+                validateFormThe();
+                return;
+            }
+
+            const regexDate = /^([0-2][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/\d{4}$/;
+
+            if (!regexDate.test(v)) {
+                hieuLucError.textContent = "Ngày hiệu lực phải đúng dạng dd/MM/yyyy.";
+            } else {
+                hieuLucError.textContent = "";
+            }
+
+            validateFormThe();
+        });
+
+        tenNganHangSelect.addEventListener("change", function () {
+            if (!this.value) {
+                tenNganHangError.textContent = "Tên ngân hàng là bắt buộc.";
+            } else {
+                tenNganHangError.textContent = "";
+            }
+            validateFormThe();
+        });
+
+        tenTrenTheInput.addEventListener("input", function () {
+            if (!this.value.trim()) {
+                tenTrenTheError.textContent = "Tên in trên thẻ là bắt buộc.";
+            } else {
+                tenTrenTheError.textContent = "";
+            }
+            validateFormThe();
+        });
+
+        function validateFormThe() {
+            const hasError =
+                soTheError.textContent ||
+                hieuLucError.textContent ||
+                cvvError.textContent ||
+                tenNganHangError.textContent ||
+                tenTrenTheError.textContent;
+
+            const isEmpty =
+                !tenNganHangSelect.value ||
+                !soTheInput.value.trim() ||
+                !tenTrenTheInput.value.trim() ||
+                !hieuLucInput.value.trim() ||
+                !cvvInput.value.trim();
+
+            btnLuuThe.disabled = hasError || isEmpty;
+        }
+
+        // Chặn submit nếu còn lỗi
+        formTheNganHang.addEventListener("submit", function (e) {
+            validateFormThe();
+            if (btnLuuThe.disabled) {
+                e.preventDefault();
+            }
         });
     </script>
 }

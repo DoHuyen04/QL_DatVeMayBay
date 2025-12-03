@@ -12,11 +12,14 @@ namespace QLDatVeMayBay.ViewModels.TaiKhoan
 
         [Required(ErrorMessage = "Email không được để trống")]
         [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+        [RegularExpression(@"^[^@\s]+@gmail\.com$",
+            ErrorMessage = "Email phải có đuôi @gmail.com")]
         [StringLength(100)]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Số điện thoại không được để trống")]
-        [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
+        [RegularExpression(@"^[0-9]{10,11}$",
+            ErrorMessage = "Số điện thoại phải là 10-11 số và không chứa chữ cái")]
         [StringLength(20)]
         public string SoDienThoai { get; set; } = string.Empty;
 
@@ -29,6 +32,8 @@ namespace QLDatVeMayBay.ViewModels.TaiKhoan
         public string QuocTich { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "CCCD không được để trống")]
+        [RegularExpression(@"^[0-9]+$",
+            ErrorMessage = "CCCD chỉ được chứa số và không chứa chữ cái")]
         [StringLength(20)]
         public string CCCD { get; set; } = string.Empty;
     }

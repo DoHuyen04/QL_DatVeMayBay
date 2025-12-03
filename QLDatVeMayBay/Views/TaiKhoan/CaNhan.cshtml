@@ -9,10 +9,24 @@
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">@Html.Raw(TempData["Success"])</div>
+    <script>
+        window.onload = function () {
+            var toast = document.getElementById("toastSuccess");
+            if (toast) {
+                toast.style.display = "block";
+                setTimeout(() => toast.style.opacity = "1", 100);
+
+                setTimeout(function () {
+                    toast.style.opacity = "0";
+                    setTimeout(() => toast.style.display = "none", 500);
+                }, 3000);
+            }
+        }
+    </script>
 }
 
-<form asp-action="CaNhan" method="post">
+
+<form asp-action="CaNhan" method="post" id="profileForm">
     <input type="hidden" asp-for="IDNguoiDung" />
 
     <div class="mb-3">
@@ -45,10 +59,33 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="QuocTich" class="form-label">Quốc Tịch</label>
-        <input asp-for="QuocTich" class="form-control" />
+        <label asp-for="QuocTich" class="form-label">Quốc tịch</label>
+        <select asp-for="QuocTich" class="form-select">
+            <option value="">-- Chọn quốc tịch --</option>
+            <option value="Việt Nam">🇻🇳 Việt Nam</option>
+            <option value="Nhật Bản">🇯🇵 Nhật Bản</option>
+            <option value="Hàn Quốc">🇰🇷 Hàn Quốc</option>
+            <option value="Trung Quốc">🇨🇳 Trung Quốc</option>
+            <option value="Thái Lan">🇹🇭 Thái Lan</option>
+            <option value="Mỹ">🇺🇸 Mỹ</option>
+            <option value="Anh">🇬🇧 Anh</option>
+            <option value="Pháp">🇫🇷 Pháp</option>
+            <option value="Đức">🇩🇪 Đức</option>
+            <option value="Nga">🇷🇺 Nga</option>
+            <option value="Canada">🇨🇦 Canada</option>
+            <option value="Úc">🇦🇺 Úc</option>
+            <option value="Singapore">🇸🇬 Singapore</option>
+            <option value="Malaysia">🇲🇾 Malaysia</option>
+            <option value="Indonesia">🇮🇩 Indonesia</option>
+            <option value="Ấn Độ">🇮🇳 Ấn Độ</option>
+            <option value="Ý">🇮🇹 Ý</option>
+            <option value="Hà Lan">🇳🇱 Hà Lan</option>
+            <option value="Tây Ban Nha">🇪🇸 Tây Ban Nha</option>
+            <option value="Brazil">🇧🇷 Brazil</option>
+        </select>
         <span asp-validation-for="QuocTich" class="text-danger"></span>
     </div>
+
 
     <div class="mb-3">
         <label asp-for="CCCD" class="form-label"></label>
@@ -57,12 +94,100 @@
     </div>
 
     <div class="text-center mt-4">
-        <button type="submit" class="btn btn-primary px-4 py-2">Lưu thay đổi</button>
+        <button type="button" id="btnShowConfirm" class="btn btn-primary px-4 py-2">
+            Lưu thay đổi
+        </button>
     </div>
 </form>
+<div id="confirmModal"
+     style="
+        display:none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 9998;
+        align-items: center;
+        justify-content: center;
+     ">
+    <div style="
+        background: #fff;
+        border-radius: 12px;
+        padding: 24px 28px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        text-align: center;
+     ">
+        <h5 class="mb-3">Xác nhận lưu thay đổi</h5>
+        <p class="mb-4">
+            Bạn có chắc chắn muốn lưu các thay đổi thông tin hồ sơ không?
+        </p>
+        <div class="d-flex justify-content-center gap-2">
+            <button type="button" id="btnCancelSave" class="btn btn-secondary me-2">
+                Quay lại
+            </button>
+            <button type="button" id="btnConfirmSave" class="btn btn-primary">
+                Xác nhận
+            </button>
+        </div>
+    </div>
+</div>
 
-@section Scripts {
+<div id="toastSuccess"
+     style="
+        display:none;
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        background: #4caf50;
+        color: white;
+        padding: 12px 18px;
+        border-radius: 8px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        font-size: 15px;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.5s;
+     ">
+    ✔ Cập nhật thông tin thành công!
+</div>
+
+
+    @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var btnShow = document.getElementById("btnShowConfirm");
+            var modal = document.getElementById("confirmModal");
+            var btnCancel = document.getElementById("btnCancelSave");
+            var btnConfirm = document.getElementById("btnConfirmSave");
+            var form = document.getElementById("profileForm");
+
+            // Bấm “Lưu thay đổi” => kiểm tra form rồi mở popup
+            btnShow.addEventListener("click", function () {
+
+                // Nếu form có validate lỗi => không mở popup
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                modal.style.display = "flex";  // mở popup
+            });
+
+            // Bấm "Quay lại" => đóng popup
+            btnCancel.addEventListener("click", function () {
+                modal.style.display = "none";
+            });
+
+            // Bấm "Xác nhận" => submit form
+            btnConfirm.addEventListener("click", function () {
+                modal.style.display = "none";
+                form.submit();  // Lưu vào database
+            });
+        });
+    </script>
+
     <style>
         form {
             background-color: #fff;

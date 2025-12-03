@@ -8,8 +8,8 @@ namespace QLDatVeMayBay.Models.ViewModels
         public int  MaChuyenBay { get; set; }
         public DateTime GioCatCanh { get; set; }
         public DateTime GioHaCanh { get; set; }
-        public int SanBayDi { get; set; }
-        public int  SanBayDen { get; set; }
+        public string SanBayDi { get; set; }
+        public string SanBayDen { get; set; }
         public string TenMayBay { get; set; }
         public string HangGhe { get; set; }
         public string LoaiVe { get; set; }

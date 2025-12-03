@@ -296,48 +296,81 @@ namespace QLDatVeMayBay.Controllers
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "VeMayBay.xlsx");
         }
         public IActionResult ChuyenBayCuaToi()
-        {
-            var idTaiKhoan = HttpContext.Session.GetInt32("IDTaiKhoan");
-            if (idTaiKhoan == null)
-            {
-                return RedirectToAction("DangNhap", "TaiKhoan");
-            }
+{
+    var idNguoiDung = HttpContext.Session.GetInt32("IDNguoiDung");
+    if (idNguoiDung == null)
+    {
+        return RedirectToAction("DangNhap", "TaiKhoan");
+    }
 
-            var veMayBays = (from ve in _context.VeMayBay
-                             join chuyen in _context.ChuyenBay on ve.IDChuyenBay equals chuyen.IDChuyenBay
-                             join mb in _context.MayBay on chuyen.IDMayBay equals mb.IDMayBay
-                             where ve.IDTaiKhoan == idTaiKhoan
-                             select new ChuyenBayCuaToiViewModels
-                             {
-                                 IDVe = ve.IDVe,
-                                 MaChuyenBay = chuyen.IDChuyenBay, // Giả sử cột này có
-                                 GioCatCanh = chuyen.GioCatCanh,
-                                 GioHaCanh = chuyen.GioHaCanh,
-                                 SanBayDi = chuyen.SanBayDi,
-                                 SanBayDen = chuyen.SanBayDen,
-                                
-                                 HangGhe = ve.HangGhe,
-                                 LoaiVe = ve.LoaiVe,
-                                 
-                                 TrangThaiVe = ve.TrangThaiVe,
-                                 TinhTrangChuyenBay = chuyen.TinhTrang
-                             }).ToList();
+            var veMayBays = (
+            from ve in _context.VeMayBay
+            join chuyen in _context.ChuyenBay
+                on ve.IDChuyenBay equals chuyen.IDChuyenBay
+            join mb in _context.MayBay
+                on chuyen.IDMayBay equals mb.IDMayBay
+            join ghe in _context.GheNgoi
+                on ve.IDGhe equals ghe.IDGhe
+            join tt in _context.ThanhToan
+                on ve.IDVe equals tt.IDVe into ttGroup
+            from tt in ttGroup.DefaultIfEmpty()
+            where ve.IDNguoiDung == idNguoiDung
+            select new ChuyenBayCuaToiViewModels
+            {
+                IDVe = ve.IDVe,
+                MaChuyenBay = chuyen.IDChuyenBay,
+                GioCatCanh = chuyen.GioCatCanh,
+                GioHaCanh = chuyen.GioHaCanh,
+                // ✅ Lấy TÊN sân bay từ navigation property
+                SanBayDi = chuyen.SanBayDiInfo != null
+                 ? chuyen.SanBayDiInfo.TenSanBay
+                 : "Không rõ",
+                SanBayDen = chuyen.SanBayDenInfo != null
+                 ? chuyen.SanBayDenInfo.TenSanBay
+                 : "Không rõ",
+
+                TenMayBay = mb.TenHangHK,
+
+                HangGhe = ve.HangGhe,
+
+                LoaiVe = !string.IsNullOrEmpty(ve.LoaiVe)
+                ? ve.LoaiVe
+                : ve.HangGhe,
+
+                PhuongThucThanhToan = tt != null ? tt.PhuongThuc : "Chưa thanh toán",
+                TrangThaiThanhToan = tt != null ? tt.TrangThaiThanhToan : "Chưa thanh toán",
+
+                TrangThaiVe = ve.TrangThaiVe ?? "Chưa thanh toán",
+                TinhTrangChuyenBay = chuyen.TinhTrang
+            }
+        ).ToList();
+
 
             return View(veMayBays);
-        }
-
-
+}
         // Xử lý hủy vé
         [HttpPost]
-        public IActionResult HuyVe(int id)
+        public IActionResult HuyVe(int id, string lyDo)
         {
             var ve = _context.VeMayBay.FirstOrDefault(v => v.IDVe == id);
-            if (ve != null && ve.TrangThaiVe != "Đã hủy")
+            var tt = _context.ThanhToan.FirstOrDefault(v => v.IDVe == id);
+
+            if (ve != null && ve.TrangThaiVe != "Đã hủy" && tt != null)
             {
                 ve.TrangThaiVe = "Đã hủy";
-               
+
+                HoanTien ht = new HoanTien();
+                ht.IDThanhToan = tt.IDThanhToan;
+                ht.SoTienHoan = tt.SoTien;
+                ht.NgayHoanTien = DateTime.Now;
+
+                // ⭐ đây là chỗ quan trọng:
+                ht.LyDo = lyDo;   // lấy đúng lý do bạn nhập trong form
+
+                _context.HoanTien.Add(ht);
                 _context.SaveChanges();
             }
+
             return RedirectToAction("ChuyenBayCuaToi");
         }
 

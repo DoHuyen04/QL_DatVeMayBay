@@ -173,6 +173,8 @@ namespace QLDatVeMayBay.Controllers
                 nguoiDung.Email = model.Email;
                 nguoiDung.SoDienThoai = model.SoDienThoai;
                 nguoiDung.GioiTinh = model.GioiTinh;
+                nguoiDung.QuocTich = model.QuocTich;
+                nguoiDung.CCCD = model.CCCD;
 
                 if (User.IsInRole("Admin") && nguoiDung.TaiKhoan != null)
                 {

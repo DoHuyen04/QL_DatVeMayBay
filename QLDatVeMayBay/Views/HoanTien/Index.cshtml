@@ -14,6 +14,7 @@
             <th>Phương thức</th>
             <th>Số tiền hoàn</th>
             <th>Ngày hoàn</th>
+            <th>Trạng thái vé</th>
             <th>Lý do</th>
         </tr>
     </thead>
@@ -23,10 +24,14 @@
             <tr>
                 <td>@item.IDThanhToan</td>
                 <td>@item.ThanhToan?.IDVe</td>
-                <td>@item.ThanhToan?.PhuongThuc</td>
+
+                <td>@item.ThanhToan?.PhuongThuc</td>   @* sẽ hiện "Ví điện tử" / "Thẻ ngân hàng" nếu DB có dữ liệu *@
+
                 <td>@item.SoTienHoan.ToString("N0") đ</td>
                 <td>@item.NgayHoanTien.ToString("dd/MM/yyyy")</td>
-                <td>@item.LyDo</td>
+
+                <td>@item.ThanhToan?.VeMayBay?.TrangThaiVe</td>   @* Đã hủy / Đã đặt *@
+                <td>@item.LyDo</td>                                @* lý do người dùng nhập *@
             </tr>
         }
     </tbody>

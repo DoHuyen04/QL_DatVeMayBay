@@ -15,6 +15,19 @@ namespace QLDatVeMayBay.Controllers
         private readonly QLDatVeMayBayContext _context;
         private readonly IConfiguration _configuration;
         private readonly EmailService _emailService;
+        private string TaoSoGhe(int soThuTu)
+        {
+            // Giả sử mỗi hàng có 6 ghế: 1..6
+            int soGheMoiHang = 6;
+
+            int hangIndex = (soThuTu - 1) / soGheMoiHang;   // 0 = A, 1 = B, ...
+            int soGhe = (soThuTu - 1) % soGheMoiHang + 1;   // 1..6
+
+            char kyTuHang = (char)('A' + hangIndex);        // 'A', 'B', 'C'...
+
+            return $"{kyTuHang}{soGhe}";                    // A1, A2, B3...
+        }
+
 
         public DatVeController(QLDatVeMayBayContext context, IConfiguration configuration, EmailService emailService)
         {
@@ -22,27 +35,6 @@ namespace QLDatVeMayBay.Controllers
             _configuration = configuration;
             _emailService = emailService;
         }
-
-        //public async Task<IActionResult> ChonGhe(int idChuyenBay)
-        //{
-        //    var chuyenBay = await _context.ChuyenBay
-        //        .Include(cb => cb.MayBay).ThenInclude(mb => mb.LoaiMayBay)
-        //        .FirstOrDefaultAsync(cb => cb.IDChuyenBay == idChuyenBay);
-
-        //    var gheDaDat = await _context.VeMayBay
-        //        .Where(v => v.IDChuyenBay == idChuyenBay)
-        //        .Select(v => v.IDGhe)
-        //        .ToListAsync();
-
-        //    var model = new DatGhe
-        //    {
-        //        IDChuyenBay = idChuyenBay,
-        //        TongSoGhe = chuyenBay.MayBay.LoaiMayBay.TongSoGhe,
-        //        GheDaDat = gheDaDat
-        //    };
-
-        //    return View(model);
-        //}
         public async Task<IActionResult> ChonGhe(int idChuyenBay)
         {
             var chuyenBay = await _context.ChuyenBay
@@ -134,9 +126,12 @@ namespace QLDatVeMayBay.Controllers
             var sanBayDen = _context.SanBay.FirstOrDefault(x => x.IDSanBay == chuyenBay.SanBayDen);
 
             // ⭐ Lấy thông tin ghế trong DB
+            
             var ghe = _context.GheNgoi
-                .FirstOrDefault(g => g.IDChuyenBay == idChuyenBay && g.IDGhe == idGhe);
-
+    .Where(g => g.IDChuyenBay == idChuyenBay)
+    .OrderBy(g => g.IDGhe)
+    .Skip(idGhe - 1)
+    .FirstOrDefault();
             if (ghe == null)
                 return BadRequest("Ghế không tồn tại!");
 
@@ -182,55 +177,6 @@ namespace QLDatVeMayBay.Controllers
         }
 
 
-        //  [HttpGet]
-        //  public IActionResult ThanhToan(int idChuyenBay, int idGhe)
-        //  {
-        //      var idNguoiDung = HttpContext.Session.GetInt32("IDNguoiDung");
-        //      if (idNguoiDung == null) return RedirectToAction("DangNhap", "TaiKhoan");
-        //      if (idGhe <= 0)
-        //      {
-        //          TempData["LoiChonGhe"] = "Bạn chưa chọn ghế nào!";
-        //          return RedirectToAction("ChonGhe", new { id = idChuyenBay });
-        //      }
-        //      // Lấy danh sách ghế đã đặt của chuyến bay
-        //      var gheDaDat = _context.VeMayBay
-        //          .Where(v => v.IDChuyenBay == idChuyenBay)
-        //          .Select(v => v.IDGhe)
-        //          .ToList();
-
-        //      if (gheDaDat.Contains(idGhe))
-        //      {
-        //          TempData["LoiChonGhe"] = $"Ghế G{idGhe} đã được người khác đặt. Vui lòng chọn ghế khác.";
-        //          return RedirectToAction("ChonGhe", new { id = idChuyenBay });
-        //      }
-        //      var chuyenBay = _context.ChuyenBay.Find(idChuyenBay);
-        //      if (chuyenBay == null)
-        //      {
-        //          TempData["LoiChonGhe"] = "Chuyến bay không tồn tại.";
-        //          return RedirectToAction("ChonGhe", new { id = idChuyenBay });
-        //      }
-
-        //      var giaVe = chuyenBay?.GiaVe ?? 0;
-        //      var danhSachThe = _context.TheThanhToan
-        //.Where(t => t.NguoiDungId == idNguoiDung)
-        //.ToList();
-        //      var model = new ThongTinThanhToan
-        //      {
-        //          Ve = new VeMayBay
-        //          {
-        //              IDNguoiDung = idNguoiDung.Value,
-        //              IDChuyenBay = idChuyenBay,
-        //              IDGhe = idGhe,
-        //              ThoiGianDat = DateTime.Now,
-        //              TrangThaiVe = "Chưa thanh toán"
-        //          },
-        //          SoTien = giaVe,
-        //          DanhSachThe = danhSachThe
-        //      };
-
-        //      return View(model);
-        //  }
-
         [HttpGet]
         public IActionResult ThanhToan(int idChuyenBay, int idGhe)
         {
@@ -252,7 +198,11 @@ namespace QLDatVeMayBay.Controllers
             }
 
             // Lấy thông tin ghế
-            var ghe = _context.GheNgoi.FirstOrDefault(g => g.IDChuyenBay == idChuyenBay && g.IDGhe == idGhe);
+            var ghe = _context.GheNgoi
+    .Where(g => g.IDChuyenBay == idChuyenBay)
+    .OrderBy(g => g.IDGhe)
+    .Skip(idGhe - 1)
+    .FirstOrDefault();
             if (ghe == null)
             {
                 TempData["LoiChonGhe"] = "Ghế không tồn tại.";
@@ -268,20 +218,29 @@ namespace QLDatVeMayBay.Controllers
                 .Where(t => t.NguoiDungId == idNguoiDung)
                 .ToList();
 
+            // Tạo SỐ GHẾ từ thứ tự ghế mà user chọn (idGhe: 1,2,3,...)
+            string soGhe = TaoSoGhe(idGhe);
+
             var model = new ThongTinThanhToan
             {
                 Ve = new VeMayBay
                 {
                     IDNguoiDung = idNguoiDung.Value,
                     IDChuyenBay = idChuyenBay,
-                    IDGhe = idGhe,
+                    IDGhe = ghe.IDGhe,          // liên kết tới bảng GheNgoi
                     ThoiGianDat = DateTime.Now,
                     TrangThaiVe = "Chưa thanh toán",
-                    HangGhe = ghe.HangGhe  // ⭐ Lưu hạng ghế
+
+                    // ✅ GHẾ: lưu số ghế user chọn (A1, B3,...)
+                    HangGhe = soGhe,
+
+                    // ✅ LOẠI VÉ: lưu hạng ghế (Phổ thông, Thương gia,...)
+                    LoaiVe = ghe.HangGhe
                 },
                 SoTien = giaVe,
                 DanhSachThe = danhSachThe
             };
+
 
             return View(model);
         }
@@ -295,10 +254,12 @@ namespace QLDatVeMayBay.Controllers
 
             // Lấy ghế từ DB và tính lại giá theo hạng ghế
             var ghe = await _context.GheNgoi.FirstOrDefaultAsync(g =>
-                g.IDChuyenBay == model.Ve.IDChuyenBay && g.IDGhe == model.Ve.IDGhe);
+    g.IDChuyenBay == model.Ve.IDChuyenBay && g.IDGhe == model.Ve.IDGhe);
 
             if (ghe == null) return BadRequest("Ghế không tồn tại.");
-            model.Ve.HangGhe = ghe.HangGhe;
+
+            model.Ve.LoaiVe = ghe.HangGhe;
+
 
             var chuyenBay = await _context.ChuyenBay.FindAsync(model.Ve.IDChuyenBay);
             decimal giaVe = chuyenBay?.GiaVe ?? 0;
@@ -306,6 +267,40 @@ namespace QLDatVeMayBay.Controllers
             else if (ghe.HangGhe == "Phổ thông đặc biệt") giaVe *= 1.3m;
 
             model.SoTien = giaVe;
+            // 🔹 Lấy thông tin thẻ/ví user chọn
+            var the = await _context.TheThanhToan.FindAsync(model.SelectedTheId);
+            if (the == null)
+            {
+                ModelState.AddModelError("", "Thẻ / ví thanh toán không tồn tại.");
+                model.DanhSachThe = _context.TheThanhToan
+                    .Where(t => t.NguoiDungId == model.Ve.IDNguoiDung)
+                    .ToList();
+                return View("ThanhToan", model);
+            }
+
+            // 🔹 Build chuỗi phương thức để lưu và hiển thị
+            string phuongThuc;
+            if (the.Loai == LoaiTheLoaiVi.TheNganHang)
+            {
+                // Ẩn bớt số thẻ cho đẹp
+                string soTheHienThi = the.SoThe != null && the.SoThe.Length >= 4
+                    ? "****" + the.SoThe[^4..]
+                    : the.SoThe ?? "";
+
+                phuongThuc = $"Thẻ NH {the.TenNganHang} {soTheHienThi}";
+            }
+            else
+            {
+                var lienHe = the.SoDienThoai ?? the.EmailLienKet ?? "";
+                phuongThuc = $"Ví {the.TenVi} {lienHe}";
+            }
+
+            // 🔹 Gán vào model để mang theo trong Session
+            model.PhuongThuc = phuongThuc;
+
+            // (Có thể cập nhật luôn số TK / số ví, chủ TK nếu muốn đồng bộ)
+            model.SoTaiKhoan = model.SoTaiKhoan ?? (the.SoThe ?? the.SoDienThoai ?? the.EmailLienKet ?? "");
+            model.ChuTaiKhoan = model.ChuTaiKhoan ?? (the.TenTrenThe ?? the.TenHienThi ?? nguoiDung.HoTen);
 
             var otp = new Random().Next(100000, 999999).ToString();
             HttpContext.Session.SetString("OTP", otp);
@@ -349,7 +344,6 @@ namespace QLDatVeMayBay.Controllers
         public async Task<IActionResult> KiemTraOTP(ThongTinThanhToan model)
         {
 
-
             // Lấy mã OTP và thời gian hết hạn từ session
             var otp = HttpContext.Session.GetString("OTP");
             var otpExpStr = HttpContext.Session.GetString("OTP_Expires");
@@ -379,18 +373,6 @@ namespace QLDatVeMayBay.Controllers
             await _context.SaveChangesAsync();
 
 
-            // Lưu thông tin thanh toán
-            var thanhToan = new ThanhToan
-            {
-                IDVe = ve.IDVe,
-                SoTien = fullModel.SoTien,
-                PhuongThuc = fullModel.PhuongThuc,
-                ThoiGianGiaoDich = DateTime.Now,
-                TrangThaiThanhToan = "Thành công"
-            };
-            _context.ThanhToan.Add(thanhToan);
-            await _context.SaveChangesAsync();
-
             // Lấy thông tin chuyến bay
             var chuyenBay = await _context.ChuyenBay
                 .Include(cb => cb.MayBay)
@@ -404,6 +386,7 @@ namespace QLDatVeMayBay.Controllers
             {
                 return RedirectToAction("DangNhap", "NguoiDung");
             }
+            // Lấy thẻ  / ví đã dùng để thanh toán
             var the = await _context.TheThanhToan.FindAsync(fullModel.SelectedTheId);
             if (the == null)
             {
@@ -414,23 +397,34 @@ namespace QLDatVeMayBay.Controllers
             string phuongThuc = the?.Loai == LoaiTheLoaiVi.TheNganHang ? "Thẻ ngân hàng" : "Ví điện tử";
             string tenNganHang = the?.Loai == LoaiTheLoaiVi.TheNganHang ? the.TenNganHang : the.TenVi;
 
+            var thanhToan = new ThanhToan
+            {
+                IDVe = ve.IDVe,
+                SoTien = fullModel.SoTien,
+                PhuongThuc = phuongThuc,                 // 🔹 thay vì fullModel.PhuongThuc
+                ThoiGianGiaoDich = DateTime.Now,
+                TrangThaiThanhToan = "Thành công"
+            };
+            _context.ThanhToan.Add(thanhToan);
+            await _context.SaveChangesAsync();
+
             // Mã QR
             string qrText = $"""
-Mã KH: {ve.IDNguoiDung}
-Mã vé: {ve.IDVe}
-Chuyến bay: {ve.IDChuyenBay} - {chuyenBay?.MayBay?.TenHangHK}
-Điểm đi: {chuyenBay?.SanBayDiInfo?.TenSanBay}
-Điểm đến: {chuyenBay?.SanBayDenInfo?.TenSanBay}
-Cất cánh: {chuyenBay?.GioCatCanh:dd/MM/yyyy HH:mm}
-Hạ cánh: {chuyenBay?.GioHaCanh:dd/MM/yyyy HH:mm}
-Ghế: G{ve.IDGhe} | Hạng: {ve.HangGhe}
-Loại vé: {ve.LoaiVe ?? "Thường"}
-Phương thức thanh toán: {phuongThuc}
-Ngân hàng / Ví: {tenNganHang}
-Số tài khoản / Số ví: {fullModel.SoTaiKhoan}
-Chủ tài khoản: {fullModel.ChuTaiKhoan}
-Số tiền: {fullModel.SoTien:N0} VNĐ
-""";
+            Mã KH: {ve.IDNguoiDung}
+            Mã vé: {ve.IDVe}
+            Chuyến bay: {ve.IDChuyenBay} - {chuyenBay?.MayBay?.TenHangHK}
+            Điểm đi: {chuyenBay?.SanBayDiInfo?.TenSanBay}
+            Điểm đến: {chuyenBay?.SanBayDenInfo?.TenSanBay}
+            Cất cánh: {chuyenBay?.GioCatCanh:dd/MM/yyyy HH:mm}
+            Hạ cánh: {chuyenBay?.GioHaCanh:dd/MM/yyyy HH:mm}
+            Ghế: G{ve.IDGhe} | Hạng: {ve.HangGhe}
+            Loại vé: {ve.LoaiVe ?? "Thường"}
+            Phương thức thanh toán: {phuongThuc}
+            Ngân hàng / Ví: {tenNganHang}
+            Số tài khoản / Số ví: {fullModel.SoTaiKhoan}
+            Chủ tài khoản: {fullModel.ChuTaiKhoan}
+            Số tiền: {fullModel.SoTien:N0} VNĐ
+            """;
 
             var qrBase64 = QRCodeHelper.GenerateQRCodeBase64(qrText);
 

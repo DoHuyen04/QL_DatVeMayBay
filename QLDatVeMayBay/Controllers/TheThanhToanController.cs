@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using QLDatVeMayBay.Data;
 using QLDatVeMayBay.Models.Entities;
 using QLDatVeMayBay.Models.ViewModels;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -66,20 +68,50 @@ namespace QLDatVeMayBay.Controllers
             if (nguoiDung == null)
                 return RedirectToAction("DangNhap", "TaiKhoan");
 
+            // ========== VALIDATE CHẶT ==========
+
+            // 1. Số thẻ: bắt buộc & CHỈ được là số
             if (string.IsNullOrWhiteSpace(SoThe))
                 ModelState.AddModelError("SoThe", "Số thẻ không được để trống.");
+            else if (!Regex.IsMatch(SoThe, @"^\d+$"))
+                ModelState.AddModelError("SoThe", "Số thẻ chỉ được chứa chữ số, không được có chữ cái hoặc ký tự đặc biệt.");
+
+            // 2. Tên in trên thẻ: bắt buộc
             if (string.IsNullOrWhiteSpace(TenTrenThe))
                 ModelState.AddModelError("TenTrenThe", "Tên trên thẻ không được để trống.");
+
+            // 3. CVV: bắt buộc, từ 3–4 số, không ký tự khác
             if (string.IsNullOrWhiteSpace(CVV))
                 ModelState.AddModelError("CVV", "CVV không được để trống.");
-            if (string.IsNullOrWhiteSpace(HieuLuc))
-                ModelState.AddModelError("HieuLuc", "Hiệu lực không được để trống.");
+            else if (!Regex.IsMatch(CVV, @"^\d{3,4}$"))
+                ModelState.AddModelError("CVV", "CVV chỉ được phép từ 3 đến 4 chữ số, không chứa chữ cái hoặc ký tự đặc biệt.");
 
+            // 4. Hạn dùng: bắt buộc, đúng định dạng dd/MM/yyyy
+            DateTime expiry = DateTime.MinValue;   // ✅ khởi tạo giá trị mặc định
+
+            if (string.IsNullOrWhiteSpace(HieuLuc))
+            {
+                ModelState.AddModelError("HieuLuc", "Ngày hiệu lực không được để trống.");
+            }
+            else if (!DateTime.TryParseExact(
+                         HieuLuc,
+                         "dd/MM/yyyy",
+                         CultureInfo.InvariantCulture,
+                         DateTimeStyles.None,
+                         out expiry))
+            {
+                ModelState.AddModelError("HieuLuc", "Ngày hiệu lực phải có dạng dd/MM/yyyy.");
+            }
+
+
+            // Nếu có lỗi -> KHÔNG LƯU, quay lại trang Index, mở sẵn form thẻ
             if (!ModelState.IsValid)
             {
-                TempData["Error"] = "Vui lòng nhập đầy đủ thông tin thẻ ngân hàng.";
+                TempData["Error"] = "Thông tin thẻ không hợp lệ. Vui lòng kiểm tra lại.";
                 return RedirectToAction(nameof(Index), new { showForm = "The" });
             }
+
+            // ========== HỢP LỆ MỚI CHO LƯU ==========
 
             var model = new TheThanhToan
             {
@@ -88,9 +120,10 @@ namespace QLDatVeMayBay.Controllers
                 Loai = LoaiTheLoaiVi.TheNganHang,
                 SoThe = SoThe,
                 TenTrenThe = TenTrenThe,
-                HieuLuc = HieuLuc,
+                // Lưu lại theo đúng format ngày/tháng/năm
+                HieuLuc = expiry.ToString("dd/MM/yyyy"),
                 CVV = CVV,
-                NgayLienKet = DateTime.Now // ✅ Gán tự động
+                NgayLienKet = DateTime.Now
             };
 
             _context.Add(model);
@@ -98,6 +131,8 @@ namespace QLDatVeMayBay.Controllers
             TempData["Success"] = "Thêm thẻ ngân hàng thành công!";
             return RedirectToAction(nameof(Index));
         }
+
+
 
         [HttpPost]
         public async Task<IActionResult> CreateViDienTu(string TenVi, string EmailLienKet, string TenHienThi, string SoDienThoai)

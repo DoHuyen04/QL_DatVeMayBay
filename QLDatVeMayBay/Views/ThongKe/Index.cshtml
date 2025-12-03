@@ -73,11 +73,11 @@
         </div>
     </form>
 
-    <div class="d-flex justify-content-end mb-3 gap-2">
+  @*   <div class="d-flex justify-content-end mb-3 gap-2">
         <a href="@Url.Action("XuatExcel", new { tuNgay = ViewData["TuNgay"], denNgay = ViewData["DenNgay"] })" class="btn btn-primary">📥 Xuất Excel</a>
         <a href="@Url.Action("XuatPDF", new { tuNgay = ViewData["TuNgay"], denNgay = ViewData["DenNgay"] })" class="btn btn-danger">📄 Xuất PDF</a>
         <a href="@Url.Action("GuiBaoCaoQuaEmail", new { tuNgay = ViewData["TuNgay"], denNgay = ViewData["DenNgay"], email = "admin@example.com" })" class="btn btn-outline-secondary">📧 Gửi Email</a>
-    </div>
+    </div> *@
 
     <div class="row g-4">
         <div class="col-md-3">
@@ -114,7 +114,7 @@
         </div>
     </div>
 
-    <div class="row mt-5 g-4">
+  @*   <div class="row mt-5 g-4">
         <div class="col-md-6">
             <div class="card p-3">
                 <h5 class="mb-3">📈 Doanh thu theo tháng</h5>
@@ -127,9 +127,9 @@
                 <canvas id="chartSanBay"></canvas>
             </div>
         </div>
-    </div>
+    </div> *@
 
-    <div class="row mt-5 g-4">
+    @* <div class="row mt-5 g-4">
         <div class="col-md-6">
             <div class="card p-3">
                 <h5 class="mb-3">📉 Tỷ lệ vé huỷ theo tháng</h5>
@@ -142,7 +142,7 @@
                 <canvas id="chartTheoPTTT"></canvas>
             </div>
         </div>
-    </div>
+    </div> *@
 
     <div class="mt-5">
         <h4>📋 Bảng thống kê chi tiết</h4>
